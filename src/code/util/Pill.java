@@ -45,5 +45,11 @@ public class Pill implements CellContent{
 		// TODO Auto-generated method stub
 		return "P";
 	}
+	@Override
+	public Pill clone(){
+		Pill pill=new Pill(x, y);
+		return pill;
+	}
+	
 
 }

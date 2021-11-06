@@ -1,13 +1,9 @@
 package code.util;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.util.StringTokenizer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class Agent  implements CellContent{
 
@@ -54,6 +50,29 @@ public class Agent  implements CellContent{
 		
 		return "A";
 	}
+
+	
+	@Override
+	public Agent clone(){
+		Agent agent=new Agent(x, y);
+		return agent;
+	}
+	
+	
+	public static void main(String[] args) {
+		Agent a=new Agent(3, 4);
+		Agent b=a.clone();
+		b.x=60;
+		ArrayList<Agent> list=new ArrayList<>();
+		list.add(a);
+		list.add(b);
+		
+		ArrayList<Agent> l=Utils.cloneList(list);
+		l.get(0).x=50;
+		System.out.println(list);
+		System.out.println(l);
+	}
+	
 	
 
 		

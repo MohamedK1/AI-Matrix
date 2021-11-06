@@ -52,6 +52,14 @@ public class Hostage  implements CellContent{
 		// TODO Auto-generated method stub
 		return "H ("+damage+")";
 	}
+	@Override
+	public Hostage clone(){
+		
+		return new Hostage(x, y, damage);
+	}
+	
+	
+	
 	
 	
 }

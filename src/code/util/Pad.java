@@ -56,6 +56,12 @@ public String visualize() {
 	return s;
 }
 
+@Override
+public Pad clone(){
+	return this;
+}
+
+
 
 
 

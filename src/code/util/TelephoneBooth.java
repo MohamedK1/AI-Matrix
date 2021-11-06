@@ -20,4 +20,10 @@ public class TelephoneBooth implements CellContent {
 		return "TB";
 	}
 	
+	@Override
+	public TelephoneBooth clone(){
+		return new TelephoneBooth(x, y);
+	}
+	
+	
 }

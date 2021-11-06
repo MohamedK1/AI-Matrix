@@ -3,7 +3,14 @@ package code.util;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
+import com.sun.xml.internal.ws.util.StringUtils;
+
 import java.util.StringTokenizer;
+
+import java.lang.*;
+import java.io.*;
 
 public class Utils {
 	/*
@@ -120,9 +127,8 @@ HostageX1,HostageY1,HostageDamage1, ...,HostageXw,HostageYw,HostageDamag
 		
 		Cell[][] matrix= buildMatrix(m,n, tele, agentList, pillList, padList, hostageList);
 		
-//		System.out.println(visualize(matrix,neo));
-		
-		State state=new State(neo, c, hostageList, new ArrayList(), agentList, matrix);
+		System.out.println(visualize(matrix,neo));
+		State state= new State(neo, c, hostageList, new ArrayList(), agentList, pillList,padList, tele, matrix);
 		return state;
 	}
 
@@ -152,28 +158,68 @@ HostageX1,HostageY1,HostageDamage1, ...,HostageXw,HostageYw,HostageDamag
 	}
 
 	public static String visualize(Cell[][] matrix,Neo neo) {
-		String s="";
+//		String s="";
+		int max=0;
 		for(int i=0;i<matrix.length;i++) {
 			for(int j=0;j<matrix[i].length;j++) {
+				String s="";
 				if(neo.x==i&&neo.y==j) {
-					s+=neo.visualize();
+					s+=neo.visualize()+", ";
 				}
 				if(matrix[i][j]==null)
 					s+="  ";
 				else {
 					s+=matrix[i][j].visualize();
 				}
+				s=s.trim();
+				if(s.length()>0&&s.charAt(s.length()-1)==',')
+					s=s.substring(0,s.length()-1);
+				
+				max=Math.max(max, s.length());
 				
 				
 				if(j<matrix[i].length-1)s+="|";
 			}
 			
-			s+="\n";
 		}
-		return s;
+		String out="";
+		max+=4;// extra 2 spaces at left and right
+		for(int i=0;i<matrix.length;i++) {
+			String row="";
+			for(int j=0;j<matrix[i].length;j++) {
+				String s="|";
+				if(neo.x==i&&neo.y==j) {
+					s+=neo.visualize()+", ";
+				}
+				if(matrix[i][j]==null)
+					s+="  ";
+				else {
+					s+=matrix[i][j].visualize();
+				}
+				s=s.trim();
+				if(s.length()>0&&s.charAt(s.length()-1)==',')
+					s=s.substring(0,s.length()-1);
+				
+				row+=String.format("%-"+max+"s", s);
+				
+				if(j<matrix[i].length)row+="|";
+			}
+			
+			
+			
+			out+=row+"\n"+row.replaceAll(".", "-")+"\n";
+			
+		}
+		return out;
 	}
-
-	private static class Pair{
+	
+	public static <T extends CellContent> ArrayList<T> cloneList(ArrayList<T> list){
+	ArrayList<T> l=new ArrayList<T>(list.stream().map((val)->(T)val.clone()).collect(Collectors.toList()));
+	
+	return l;
+}
+	
+private static class Pair{
 		int x,y;
 
 		public Pair(int x, int y) {

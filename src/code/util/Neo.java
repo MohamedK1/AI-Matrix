@@ -25,4 +25,12 @@ public String visualize() {
 	return "Neo ("+damage+")";
 }
 
+@Override
+public Neo clone(){
+	Neo neo=new Neo(x, y);
+	neo.damage=damage;
+	return neo;
+}
+
+
 }
