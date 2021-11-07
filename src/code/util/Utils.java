@@ -62,7 +62,8 @@ HostageX1,HostageY1,HostageDamage1, ...,HostageXw,HostageYw,HostageDamag
 		internalSt=new StringTokenizer(st.nextToken(),",");
 		ArrayList<Pill> pillList=new ArrayList();
 		while(internalSt.hasMoreElements()) {
-			int pillX=Integer.parseInt(internalSt.nextToken());
+			String x=internalSt.nextToken();
+			int pillX=Integer.parseInt(x);
 			int pillY=Integer.parseInt(internalSt.nextToken());
 			Pill pill=new Pill(pillX,pillY);
 			pillList.add(pill);

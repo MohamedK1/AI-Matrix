@@ -67,26 +67,28 @@ public class State implements GenericState {
 	}
 
 
-	public ArrayList<State> expand(){
-		ArrayList<State> nextStates=new ArrayList<>();
+	public ArrayList<StateOperatorPair> expand(){
+		ArrayList<StateOperatorPair> nextStates=new ArrayList<>();
+		if(neo.damage==100)return nextStates;
 
 		int neoX=neo.x,neoY=neo.y;
 		Cell curCell=matrix[neoX][neoY];
-
-		if(curCell.cellContent instanceof Hostage) {// neo is with a hostage in the current cell;
+			
+		if(curCell!=null&&curCell.cellContent instanceof Hostage) {// neo is with a hostage in the current cell;
 
 			handleCarryHostage(nextStates, neoX, neoY);
 		}
 
-		if(curCell.cellContent instanceof TelephoneBooth) {
-			handleDropHostages();
+		if(curCell!=null&&curCell.cellContent instanceof TelephoneBooth) {
+			if(telephoneBooth.x==neoX&&telephoneBooth.y==neoY)
+				handleDropHostages(nextStates);
 		}
 
-		if(curCell.cellContent instanceof Pill) {
+		if(curCell!=null&&curCell.cellContent instanceof Pill) {
 			handleTakePill(nextStates, neoX, neoY);
 		}
 
-		if(curCell.cellContent instanceof Pad) {
+		if(curCell!=null&&curCell.cellContent instanceof Pad) {
 			handleUsePad(nextStates, neoX, neoY);
 		}
 
@@ -97,19 +99,29 @@ public class State implements GenericState {
 		handleKillAgent(nextStates, neoX, neoY-1);
 
 
-		handleMove(nextStates, neoX+1, neoY);
-		handleMove(nextStates, neoX-1, neoY);
-		handleMove(nextStates, neoX, neoY+1);
-		handleMove(nextStates, neoX, neoY-1);
+		handleMove(nextStates, neoX+1, neoY,"down");
+		handleMove(nextStates, neoX-1, neoY,"up");
+		handleMove(nextStates, neoX, neoY+1,"right");
+		handleMove(nextStates, neoX, neoY-1,"left");
 		
 		return nextStates;
 	}
 
+	
+	public static class StateOperatorPair{
+		public State state;public String operator;
+
+		public StateOperatorPair(State state, String operator) {
+			super();
+			this.state = state;
+			this.operator = operator;
+		}
+		
+	}
+	
 
 
-
-
-	private void handleMove(ArrayList<State> nextStates, int x, int y) {
+	private void handleMove(ArrayList<StateOperatorPair> nextStates, int x, int y,String operator) {
 		State nextState=this.clone();
 		if(isValid(x, y)) {
 			if(!containsAgent(x, y)) {
@@ -117,11 +129,11 @@ public class State implements GenericState {
 				nextState.neo.y=y;
 				
 				nextState.oneTimeStep();
-				nextStates.add(nextState);
+				nextStates.add(new StateOperatorPair(nextState, operator));
 			}
 		}else {
 			nextState.oneTimeStep();
-			nextStates.add(nextState);
+			nextStates.add(new StateOperatorPair(nextState, operator));
 
 		}
 	}
@@ -142,7 +154,7 @@ public class State implements GenericState {
 	}
 
 
-	private void handleKillAgent(ArrayList<State> nextStates, int x, int y) {
+	private void handleKillAgent(ArrayList<StateOperatorPair> nextStates, int x, int y) {
 		if(isValid(x, y)) {
 			//checking if we have a hostage that has transformed into agent so that we can kill it.
 			for(int i=0;i<hostages.size();i++) {
@@ -156,7 +168,7 @@ public class State implements GenericState {
 					nextState.neo.damage=Math.min(100, nextState.neo.damage+20);
 
 					nextState.oneTimeStep();
-					nextStates.add(nextState);
+					nextStates.add(new StateOperatorPair(nextState, "kill"));
 					break;
 				}
 			}
@@ -173,7 +185,7 @@ public class State implements GenericState {
 					nextState.neo.damage=Math.min(100, nextState.neo.damage+20);
 
 					nextState.oneTimeStep();
-					nextStates.add(nextState);
+					nextStates.add(new StateOperatorPair(nextState, "kill"));
 					break;
 				}
 			}
@@ -188,9 +200,7 @@ public class State implements GenericState {
 
 
 
-
-
-	private void handleUsePad(ArrayList<State> nextStates, int neoX, int neoY) {
+	private void handleUsePad(ArrayList<StateOperatorPair> nextStates, int neoX, int neoY) {
 		for(int i=0;i<pads.size();i++) {
 			if(pads.get(i).x==neoX&&pads.get(i).y==neoY) {
 				Pad pad=pads.get(i);
@@ -199,7 +209,7 @@ public class State implements GenericState {
 					nextState.neo.x=nextPad.x;		
 					nextState.neo.y=nextPad.y;
 					nextState.oneTimeStep();
-					nextStates.add(nextState);
+					nextStates.add(new StateOperatorPair(nextState,"fly"));
 				}
 			}
 		}
@@ -209,7 +219,7 @@ public class State implements GenericState {
 
 
 
-	private void handleTakePill(ArrayList<State> nextStates, int neoX, int neoY) {
+	private void handleTakePill(ArrayList<StateOperatorPair> nextStates, int neoX, int neoY) {
 		State nextState=this.clone();
 
 		for(int i=0;i<nextState.pills.size();i++) {
@@ -237,7 +247,7 @@ public class State implements GenericState {
 				nextState.matrix[neoX][neoY]=null;
 
 				nextState.oneTimeStep();
-				nextStates.add(nextState);
+				nextStates.add(new StateOperatorPair(nextState, "takePill"));
 			}
 		}
 	}
@@ -246,11 +256,12 @@ public class State implements GenericState {
 
 
 
-	private void handleDropHostages() {
+	private void handleDropHostages(ArrayList<StateOperatorPair> nextStates) {
 		if(carriedHostages.size()>0) {
 			State nextState=this.clone();
 			nextState.carriedHostages.clear();
 			nextState.oneTimeStep();
+			nextStates.add(new StateOperatorPair(nextState, "drop"));
 		}
 	}
 
@@ -258,7 +269,7 @@ public class State implements GenericState {
 
 
 
-	private void handleCarryHostage(ArrayList<State> nextStates, int neoX, int neoY) {
+	private void handleCarryHostage(ArrayList<StateOperatorPair> nextStates, int neoX, int neoY) {
 		if(c-carriedHostages.size()>0) {// check if Neo can still carry more hostages
 			State nextState=this.clone();
 			for(int i=0;i< nextState.hostages.size();i++) {
@@ -269,7 +280,7 @@ public class State implements GenericState {
 
 					nextState.matrix[neoX][neoY]=null;// nullify the current cell since now I carried that hostage
 					nextState.oneTimeStep();
-					nextStates.add(nextState);
+					nextStates.add(new StateOperatorPair(nextState, "carry"));
 
 					break;
 				}
@@ -294,6 +305,173 @@ public class State implements GenericState {
 			}
 			hostage.damage=Math.min(100,hostage.damage+2);
 		}
+	}
+
+
+
+
+
+	public Neo getNeo() {
+		return neo;
+	}
+
+
+
+
+
+	public int getC() {
+		return c;
+	}
+
+
+
+
+
+	public ArrayList<Hostage> getHostages() {
+		return hostages;
+	}
+
+
+
+
+
+	public ArrayList<Hostage> getCarriedHostages() {
+		return carriedHostages;
+	}
+
+
+
+
+
+	public int getHostagesTransformed() {
+		return hostagesTransformed;
+	}
+
+
+
+
+
+	public int getKilledAgents() {
+		return killedAgents;
+	}
+
+
+
+
+
+	public ArrayList<Agent> getAgents() {
+		return agents;
+	}
+
+
+
+
+
+	public ArrayList<Pill> getPills() {
+		return pills;
+	}
+
+
+
+
+
+	public ArrayList<Pad> getPads() {
+		return pads;
+	}
+
+
+
+
+
+	public TelephoneBooth getTelephoneBooth() {
+		return telephoneBooth;
+	}
+
+
+
+
+
+	public Cell[][] getMatrix() {
+		return matrix;
+	}
+
+
+
+
+
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((agents == null) ? 0 : agents.hashCode());
+		result = prime * result + c;
+		result = prime * result + ((carriedHostages == null) ? 0 : carriedHostages.hashCode());
+		result = prime * result + ((hostages == null) ? 0 : hostages.hashCode());
+		result = prime * result + hostagesTransformed;
+		result = prime * result + killedAgents;
+		result = prime * result + ((neo == null) ? 0 : neo.hashCode());
+		result = prime * result + ((pads == null) ? 0 : pads.hashCode());
+		result = prime * result + ((pills == null) ? 0 : pills.hashCode());
+		result = prime * result + ((telephoneBooth == null) ? 0 : telephoneBooth.hashCode());
+		return result;
+	}
+
+
+
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		State other = (State) obj;
+		if (agents == null) {
+			if (other.agents != null)
+				return false;
+		} else if (!agents.equals(other.agents))
+			return false;
+		if (c != other.c)
+			return false;
+		if (carriedHostages == null) {
+			if (other.carriedHostages != null)
+				return false;
+		} else if (!carriedHostages.equals(other.carriedHostages))
+			return false;
+		if (hostages == null) {
+			if (other.hostages != null)
+				return false;
+		} else if (!hostages.equals(other.hostages))
+			return false;
+		if (hostagesTransformed != other.hostagesTransformed)
+			return false;
+		if (killedAgents != other.killedAgents)
+			return false;
+		if (neo == null) {
+			if (other.neo != null)
+				return false;
+		} else if (!neo.equals(other.neo))
+			return false;
+		if (pads == null) {
+			if (other.pads != null)
+				return false;
+		} else if (!pads.equals(other.pads))
+			return false;
+		if (pills == null) {
+			if (other.pills != null)
+				return false;
+		} else if (!pills.equals(other.pills))
+			return false;
+		if (telephoneBooth == null) {
+			if (other.telephoneBooth != null)
+				return false;
+		} else if (!telephoneBooth.equals(other.telephoneBooth))
+			return false;
+		return true;
 	}
 
 
