@@ -127,8 +127,8 @@ HostageX1,HostageY1,HostageDamage1, ...,HostageXw,HostageYw,HostageDamag
 		
 		Cell[][] matrix= buildMatrix(m,n, tele, agentList, pillList, padList, hostageList);
 		
-		System.out.println(visualize(matrix,neo));
-		State state= new State(neo, c, hostageList, new ArrayList(), agentList, pillList,padList, tele, matrix);
+//		System.out.println(visualize(matrix,neo));
+		State state= new State(neo, c, hostageList, new ArrayList(), agentList, pillList,padList, tele, matrix,0,0);
 		return state;
 	}
 
@@ -219,7 +219,8 @@ HostageX1,HostageY1,HostageDamage1, ...,HostageXw,HostageYw,HostageDamag
 	return l;
 }
 	
-private static class Pair{
+	
+	private static class Pair{
 		int x,y;
 
 		public Pair(int x, int y) {
@@ -254,7 +255,11 @@ private static class Pair{
 		}
 		
 	}
-	public static void main(String[] args) {
-		parse("5,5;2;0,4;1,4;0,1,1,1,2,1,3,1,3,3,3,4;1,0,2,4;0,3,4,3,4,3,0,3;0,0,30,3,0,80,4,4,80");
+	
+
+public static void main(String[] args) {
+		State s=parse("5,5;2;0,4;1,4;0,1,1,1,2,1,3,1,3,3,3,4;1,0,2,4;0,3,4,3,4,3,0,3;0,0,30,3,0,80,4,4,80");
+		System.out.println(visualize(s.matrix, s.neo));
 	}
+
 }

@@ -4,12 +4,9 @@ package code.util;
 public class Hostage  implements CellContent{
 	int x,y;
 	int damage;
-	public void decrease() {
-		damage=Math.max(0, damage-2);
-	}
 	// make sure he is not in the booth
 	public boolean isAgent() {
-		return damage==0;
+		return damage==100;
 	}
 	@Override
 	public int hashCode() {
