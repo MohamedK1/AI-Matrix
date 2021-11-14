@@ -129,7 +129,7 @@ HostageX1,HostageY1,HostageDamage1, ...,HostageXw,HostageYw,HostageDamag
 		Cell[][] matrix= buildMatrix(m,n, tele, agentList, pillList, padList, hostageList);
 		
 //		System.out.println(visualize(matrix,neo));
-		State state= new State(neo, c, hostageList, new ArrayList(), agentList, pillList,padList, tele, matrix,0,0);
+		State state= new State(neo, c, hostageList, new ArrayList(), agentList, pillList,padList, tele, matrix,0,0,new ArrayList<>());
 		return state;
 	}
 
@@ -158,7 +158,7 @@ HostageX1,HostageY1,HostageDamage1, ...,HostageXw,HostageYw,HostageDamag
 		return matrix;
 	}
 
-	public static String visualize(Cell[][] matrix,Neo neo) {
+	public static String visualize(Cell[][] matrix,Neo neo, ArrayList<Hostage>carriedHostages, ArrayList<Hostage>telephoneBoothHostages) {
 //		String s="";
 		int max=0;
 		for(int i=0;i<matrix.length;i++) {
@@ -211,6 +211,19 @@ HostageX1,HostageY1,HostageDamage1, ...,HostageXw,HostageYw,HostageDamag
 			out+=row+"\n"+row.replaceAll(".", "-")+"\n";
 			
 		}
+		out+="Carried hostages: [";
+		for(Hostage hostage: carriedHostages) {
+			out+=hostage.visualize()+", ";
+		}
+		out+="]\n";
+		
+		out+="Telephone booth hostages: [";
+		for(Hostage hostage: telephoneBoothHostages) {
+			out+=hostage.visualize()+", ";
+		}
+		out+="]\n";
+		
+		
 		return out;
 	}
 	
@@ -260,7 +273,7 @@ HostageX1,HostageY1,HostageDamage1, ...,HostageXw,HostageYw,HostageDamag
 
 public static void main(String[] args) {
 		State s=parse("5,5;2;0,4;1,4;0,1,1,1,2,1,3,1,3,3,3,4;1,0,2,4;0,3,4,3,4,3,0,3;0,0,30,3,0,80,4,4,80");
-		System.out.println(visualize(s.matrix, s.neo));
+		System.out.println(visualize(s.matrix, s.neo,s.carriedHostages,s.telephoneBoothHostages));
 	}
 
 }

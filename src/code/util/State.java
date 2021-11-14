@@ -11,6 +11,8 @@ public class State implements GenericState {
 
 	ArrayList<Hostage> hostages; // carries alived hostages or transformed hostages in case that damage=100
 	ArrayList<Hostage> carriedHostages;
+	ArrayList<Hostage> telephoneBoothHostages;
+	
 	int hostagesTransformed;//x
 	int killedAgents;//general counter for all killed agents included those who are transformed from hostages >=x
 
@@ -25,7 +27,7 @@ public class State implements GenericState {
 
 
 	public State(Neo neo, int c, ArrayList<Hostage> hostages, ArrayList<Hostage> carriedHostages, ArrayList<Agent> agents,
-			ArrayList<Pill> pills, ArrayList<Pad> pads, TelephoneBooth telephoneBooth, Cell[][] matrix,int hostagesTransformed,int killedAgents) {
+			ArrayList<Pill> pills, ArrayList<Pad> pads, TelephoneBooth telephoneBooth, Cell[][] matrix,int hostagesTransformed,int killedAgents,ArrayList<Hostage>telephoneBoothHostages) {
 		super();
 		this.neo = neo;
 		this.c = c;
@@ -38,6 +40,7 @@ public class State implements GenericState {
 		this.matrix = matrix;
 		this.hostagesTransformed=hostagesTransformed;
 		this.killedAgents=killedAgents;
+		this.telephoneBoothHostages=telephoneBoothHostages;
 	}
 
 
@@ -57,12 +60,13 @@ public class State implements GenericState {
 		ArrayList<Pill> pills=Utils.cloneList(this.pills);
 		ArrayList<Pad> pads=Utils.cloneList(this.pads);
 		TelephoneBooth telephoneBooth=this.telephoneBooth.clone();
+		ArrayList<Hostage>telephoneBoothHostages=Utils.cloneList(this.telephoneBoothHostages);
 
 		int m=matrix.length,n=matrix[0].length;
 
 		Cell[][] matrix= Utils.buildMatrix(m, n, telephoneBooth, agents, pills, pads, hostages);
 
-		return new State(neo, c, hostages, carriedHostages, agents, pills, pads, telephoneBooth, matrix,hostagesTransformed,killedAgents);
+		return new State(neo, c, hostages, carriedHostages, agents, pills, pads, telephoneBooth, matrix,hostagesTransformed,killedAgents,telephoneBoothHostages);
 
 	}
 
@@ -73,7 +77,7 @@ public class State implements GenericState {
 
 		int neoX=neo.x,neoY=neo.y;
 		Cell curCell=matrix[neoX][neoY];
-			
+
 		if(curCell!=null&&curCell.cellContent instanceof Hostage) {// neo is with a hostage in the current cell;
 
 			handleCarryHostage(nextStates, neoX, neoY);
@@ -93,21 +97,22 @@ public class State implements GenericState {
 		}
 
 
-		handleKillAgent(nextStates, neoX+1, neoY);
-		handleKillAgent(nextStates, neoX-1, neoY);
-		handleKillAgent(nextStates, neoX, neoY+1);
-		handleKillAgent(nextStates, neoX, neoY-1);
+		handleKillAgent(nextStates, neoX, neoY);
+		//		handleKillAgent(nextStates, neoX+1, neoY);
+		//		handleKillAgent(nextStates, neoX-1, neoY);
+		//		handleKillAgent(nextStates, neoX, neoY+1);
+		//		handleKillAgent(nextStates, neoX, neoY-1);
 
 
 		handleMove(nextStates, neoX+1, neoY,"down");
 		handleMove(nextStates, neoX-1, neoY,"up");
 		handleMove(nextStates, neoX, neoY+1,"right");
 		handleMove(nextStates, neoX, neoY-1,"left");
-		
+
 		return nextStates;
 	}
 
-	
+
 	public static class StateOperatorPair{
 		public State state;public String operator;
 
@@ -116,9 +121,9 @@ public class State implements GenericState {
 			this.state = state;
 			this.operator = operator;
 		}
-		
+
 	}
-	
+
 
 
 	private void handleMove(ArrayList<StateOperatorPair> nextStates, int x, int y,String operator) {
@@ -127,13 +132,13 @@ public class State implements GenericState {
 			if(!containsAgent(x, y)) {
 				nextState.neo.x=x;
 				nextState.neo.y=y;
-				
+
 				nextState.oneTimeStep();
 				nextStates.add(new StateOperatorPair(nextState, operator));
 			}
 		}else {
-			nextState.oneTimeStep();
-			nextStates.add(new StateOperatorPair(nextState, operator));
+//			nextState.oneTimeStep();
+//			nextStates.add(new StateOperatorPair(nextState, operator));
 
 		}
 	}
@@ -154,43 +159,61 @@ public class State implements GenericState {
 	}
 
 
-	private void handleKillAgent(ArrayList<StateOperatorPair> nextStates, int x, int y) {
-		if(isValid(x, y)) {
-			//checking if we have a hostage that has transformed into agent so that we can kill it.
-			for(int i=0;i<hostages.size();i++) {
-				if(hostages.get(i).x==x&&hostages.get(i).y==y&&hostages.get(i).isAgent()) {
-					State nextState=this.clone();
+	private void handleKillAgent(ArrayList<StateOperatorPair> nextStates, int neoX, int neoY) {
 
-					nextState.hostages.remove(i);
-					nextState.matrix[x][y]=null;		
+		int[]dx = new int [] {-1, 1, 0, 0};
+		int[]dy = new int [] {0, 0, -1, 1};
+		boolean killed = false;
+		State nextState=this.clone();
+		for(int j = 0; j < dx.length; j++) {
+			int x = neoX + dx[j];
+			int y = neoY + dy[j];
 
-					nextState.killedAgents++;
-					nextState.neo.damage=Math.min(100, nextState.neo.damage+20);
+			if(isValid(x, y)) {
+				//checking if we have a hostage that has transformed into agent so that we can kill it.
+				for(int i=0;i<nextState.hostages.size();i++) {
+					if(nextState.hostages.get(i).x==x&&nextState.hostages.get(i).y==y&&nextState.hostages.get(i).isAgent()) {
+						//State nextState=this.clone();
 
-					nextState.oneTimeStep();
-					nextStates.add(new StateOperatorPair(nextState, "kill"));
-					break;
+						nextState.hostages.remove(i);
+						nextState.matrix[x][y]=null;		
+
+						nextState.killedAgents++;
+						killed = true;
+						//					nextState.neo.damage=Math.min(100, nextState.neo.damage+20);
+						//
+						//					nextState.oneTimeStep();
+						//					nextStates.add(new StateOperatorPair(nextState, "kill"));
+						break;
+					}
+				}
+
+				//checking if we have an agent so that we can kill it.
+				for(int i=0;i<nextState.agents.size();i++) {
+					if(nextState.agents.get(i).x==x&&nextState.agents.get(i).y==y) {
+						//State nextState=this.clone();
+
+						nextState.agents.remove(i);
+						nextState.matrix[x][y]=null;		
+
+						nextState.killedAgents++;
+						killed = true;
+						//					nextState.neo.damage=Math.min(100, nextState.neo.damage+20);
+						//
+						//					nextState.oneTimeStep();
+						//					nextStates.add(new StateOperatorPair(nextState, "kill"));
+						break;
+					}
 				}
 			}
 
-			//checking if we have an agent so that we can kill it.
-			for(int i=0;i<agents.size();i++) {
-				if(agents.get(i).x==x&&agents.get(i).y==y) {
-					State nextState=this.clone();
 
-					nextState.agents.remove(i);
-					nextState.matrix[x][y]=null;		
+		}
 
-					nextState.killedAgents++;
-					nextState.neo.damage=Math.min(100, nextState.neo.damage+20);
-
-					nextState.oneTimeStep();
-					nextStates.add(new StateOperatorPair(nextState, "kill"));
-					break;
-				}
-			}
-
-
+		if(killed) {
+			nextState.neo.damage=Math.min(100, nextState.neo.damage+20);
+			nextState.oneTimeStep();
+			nextStates.add(new StateOperatorPair(nextState, "kill"));
 		}
 	}
 	private boolean isValid(int i, int j ) {
@@ -246,8 +269,9 @@ public class State implements GenericState {
 				nextState.pills.remove(i);
 				nextState.matrix[neoX][neoY]=null;
 
-				nextState.oneTimeStep();
+//				nextState.oneTimeStep(); When neo takes pill, we don't increase damage of all hostages. 
 				nextStates.add(new StateOperatorPair(nextState, "takePill"));
+				
 			}
 		}
 	}
@@ -255,10 +279,13 @@ public class State implements GenericState {
 
 
 
-
+	
 	private void handleDropHostages(ArrayList<StateOperatorPair> nextStates) {
 		if(carriedHostages.size()>0) {
+			
 			State nextState=this.clone();
+			nextState.telephoneBoothHostages.addAll(nextState.carriedHostages);
+			
 			nextState.carriedHostages.clear();
 			nextState.oneTimeStep();
 			nextStates.add(new StateOperatorPair(nextState, "drop"));
@@ -307,7 +334,7 @@ public class State implements GenericState {
 		}
 	}
 
-
+//	public int h1()
 
 
 
@@ -399,7 +426,15 @@ public class State implements GenericState {
 
 
 
-	
+
+	public ArrayList<Hostage> getTelephoneBoothHostages() {
+		return telephoneBoothHostages;
+	}
+
+
+
+
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -414,6 +449,7 @@ public class State implements GenericState {
 		result = prime * result + ((pads == null) ? 0 : pads.hashCode());
 		result = prime * result + ((pills == null) ? 0 : pills.hashCode());
 		result = prime * result + ((telephoneBooth == null) ? 0 : telephoneBooth.hashCode());
+		result = prime * result + ((telephoneBoothHostages == null) ? 0 : telephoneBoothHostages.hashCode());
 		return result;
 	}
 
@@ -470,6 +506,11 @@ public class State implements GenericState {
 			if (other.telephoneBooth != null)
 				return false;
 		} else if (!telephoneBooth.equals(other.telephoneBooth))
+			return false;
+		if (telephoneBoothHostages == null) {
+			if (other.telephoneBoothHostages != null)
+				return false;
+		} else if (!telephoneBoothHostages.equals(other.telephoneBoothHostages))
 			return false;
 		return true;
 	}
