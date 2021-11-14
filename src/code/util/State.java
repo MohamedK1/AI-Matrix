@@ -1,6 +1,7 @@
 package code.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import code.GenericState;
 
@@ -334,8 +335,88 @@ public class State implements GenericState {
 		}
 	}
 
-//	public int h1()
+	public int h1() {
+		int numberOfHostagesToBeKilled=0;
+		for(Hostage hostage:hostages) {
+			if(hostage.isAgent())numberOfHostagesToBeKilled++;
+		}
+		return numberOfHostagesToBeKilled;
+	}
 
+	static int[][] mat;// matrix containing the shortest path between (i,j) and (k,l) in mat[i*m+j][k*m+l] where m is the number of cols
+	static boolean computed=false;// computed is true if mat is already calculated
+	static int INF=(int)1e8;
+	public static int getIndex(int i, int j ,int m) {
+		return i*m+j;
+	}
+	
+	public void floydWarshal() {
+		int n=matrix.length;
+		int m=matrix[0].length;
+	
+		mat=new int[n*m][n*m];
+		
+		for(int i=0;i<mat.length;i++) {
+			Arrays.fill(mat[i], INF);
+		}
+		
+		for(Pad pad:pads) {
+			for(Pad dest:pad.destinations) {
+				int srcIdx=getIndex(pad.x, pad.y, m);
+				int destIdx=getIndex(dest.x, dest.y, m);
+				mat[srcIdx][destIdx]=mat[destIdx][srcIdx]=1;
+			}
+		}
+		int dx[]=new int[] {1,-1,0,0};
+		int dy[]=new int[] {0,0,1,-1};
+		
+		for(int x=0;x<n;x++) {
+			for(int y=0;y<m;y++) {
+				for(int i=0;i<dx.length;i++) {
+					int newX=x+dx[i],newY=y+dy[i];
+					if(isValid(newX, newY)) {
+						int srcIdx=getIndex(x,y,m);
+						int destIdx=getIndex(newX,newY,m);
+						mat[srcIdx][destIdx]=mat[destIdx][srcIdx]=1;
+					}
+				}
+			}
+		}
+		
+		//floyd warshal part
+		for(int i=0;i<mat.length;i++) {
+			for(int j=0;j<mat.length;j++) {
+				for(int mid=0;mid<mat.length;mid++) {
+					if(mat[i][j]>mat[i][mid]+mat[mid][j])
+						mat[i][j]=mat[i][mid]+mat[mid][j];
+				}
+			}
+		}
+		
+		computed=true;
+				
+	}
+	public int h2() {
+		if(!computed) {
+			floydWarshal();
+		}
+		int m=matrix[0].length;//number of columns
+		int cntPills=pills.size();
+		int cntDeadHostage=0;
+		for(Hostage hostage:hostages) {
+			int damage=hostage.damage-20*cntPills;
+			int neoIdx=getIndex(neo.x, neo.y, m);
+			int hostageIdx=getIndex(hostage.x,hostage.y,m);
+			int telephoneIndex=getIndex(telephoneBooth.x, telephoneBooth.y, m);
+			
+			int totalDistance=mat[neoIdx][hostageIdx]+mat[hostageIdx][telephoneIndex]+1;// this +1 is to count for the carry action
+			
+			if(damage+totalDistance*2>=100)
+				cntDeadHostage++;
+		}
+		return cntDeadHostage;
+		
+	}
 
 
 	public Neo getNeo() {
