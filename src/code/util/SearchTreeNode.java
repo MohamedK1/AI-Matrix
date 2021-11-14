@@ -1,7 +1,8 @@
 package code.util;
 
 public class SearchTreeNode implements Comparable<SearchTreeNode> {
-	State state;
+//	State state;
+	String stateEncode;
 	SearchTreeNode parent;
 	String operator;
 	int depth;
@@ -9,7 +10,8 @@ public class SearchTreeNode implements Comparable<SearchTreeNode> {
 	
 	public SearchTreeNode(State state, SearchTreeNode parent, String operator, int depth, Comparable pathCost) {
 		super();
-		this.state = state;
+//		this.state = state;
+		this.stateEncode=state.encode();
 		this.parent = parent;
 		this.operator = operator;
 		this.depth = depth;
@@ -18,7 +20,8 @@ public class SearchTreeNode implements Comparable<SearchTreeNode> {
 
 
 	public State getState() {
-		return state;
+		return State.decode(stateEncode);
+//		return state;
 	}
 
 	public SearchTreeNode getParent() {
