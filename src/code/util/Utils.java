@@ -1,11 +1,10 @@
 package code.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-
-import com.sun.xml.internal.ws.util.StringUtils;
 
 import java.util.StringTokenizer;
 
@@ -24,43 +23,51 @@ HostageX1,HostageY1,HostageDamage1, ...,HostageXw,HostageYw,HostageDamag
 	public static State parse(String s) {
 
 		StringTokenizer st=new StringTokenizer(s,";");
-
+		String []arr = s.split(";");
+//		System.out.println(Arrays.toString(arr));
+		int idx = 0;
 		//  M,N size of grid
-		StringTokenizer internalSt=new StringTokenizer(st.nextToken(),",");
-		int m=Integer.parseInt(internalSt.nextToken());
+		StringTokenizer internalSt=new StringTokenizer(arr[idx++],",");
 		int n=Integer.parseInt(internalSt.nextToken());
+		int m=Integer.parseInt(internalSt.nextToken());
+		
+		
 		
 		// c
-		internalSt=new StringTokenizer(st.nextToken(),",");
+		internalSt=new StringTokenizer(arr[idx++],",");
 		int c=Integer.parseInt(internalSt.nextToken());
 
 		//Neo location
-		internalSt=new StringTokenizer(st.nextToken(),",");
+		internalSt=new StringTokenizer(arr[idx++],",");
 		int neoX=Integer.parseInt(internalSt.nextToken());
 		int neoY=Integer.parseInt(internalSt.nextToken());
 		Neo neo=new Neo(neoX, neoY);
 
 
 		//Telephone booth location
-		internalSt=new StringTokenizer(st.nextToken(),",");
+		internalSt=new StringTokenizer(arr[idx++],",");
 		int teleX=Integer.parseInt(internalSt.nextToken());
 		int teleY=Integer.parseInt(internalSt.nextToken());
 		TelephoneBooth tele=new TelephoneBooth(teleX, teleY);
 
 
 		//Agent locations
-		internalSt=new StringTokenizer(st.nextToken(),",");
 		ArrayList<Agent> agentList=new ArrayList();
+		if(idx<arr.length&&!arr[idx].equals("")) {
+		internalSt=new StringTokenizer(arr[idx],",");
 		while(internalSt.hasMoreElements()) {
 			int agentX=Integer.parseInt(internalSt.nextToken());
 			int agentY=Integer.parseInt(internalSt.nextToken());
 			Agent agent=new Agent(agentX,agentY);
 			agentList.add(agent);
 		}
+		}
+		idx++;
 
 		//pills location 
-		internalSt=new StringTokenizer(st.nextToken(),",");
 		ArrayList<Pill> pillList=new ArrayList();
+		if(idx<arr.length&&!arr[idx].equals("")) {
+		internalSt=new StringTokenizer(arr[idx],",");
 		while(internalSt.hasMoreElements()) {
 			String x=internalSt.nextToken();
 			int pillX=Integer.parseInt(x);
@@ -68,11 +75,14 @@ HostageX1,HostageY1,HostageDamage1, ...,HostageXw,HostageYw,HostageDamag
 			Pill pill=new Pill(pillX,pillY);
 			pillList.add(pill);
 		}
+		}
+		idx++;
 
 		//pads location 
-		internalSt=new StringTokenizer(st.nextToken(),",");
-		HashMap<Pair,Pad> padMap=new HashMap<>();// stores reference to each already created pad to avoid recreating it.
 		ArrayList<Pad> padList=new ArrayList<>();
+		if(idx<arr.length&&!arr[idx].equals("")) {
+		internalSt=new StringTokenizer(arr[idx],",");
+		HashMap<Pair,Pad> padMap=new HashMap<>();// stores reference to each already created pad to avoid recreating it.
 		while(internalSt.hasMoreElements()) {
 			int startX=Integer.parseInt(internalSt.nextToken());
 			int startY=Integer.parseInt(internalSt.nextToken());
@@ -104,11 +114,14 @@ HostageX1,HostageY1,HostageDamage1, ...,HostageXw,HostageYw,HostageDamag
 		for(Entry<Pair,Pad> e:padMap.entrySet() ) {
 			padList.add(e.getValue());
 		}
+		}
+		idx++;
 		
 		//hostage location
 		
-		internalSt=new StringTokenizer(st.nextToken(),",");
 		ArrayList<Hostage> hostageList=new ArrayList();
+		if(idx<arr.length&&!arr[idx].equals("")) {
+		internalSt=new StringTokenizer(arr[idx],",");
 		while(internalSt.hasMoreElements()) {
 			int hostageX=Integer.parseInt(internalSt.nextToken());
 			int hostageY=Integer.parseInt(internalSt.nextToken());
@@ -116,6 +129,8 @@ HostageX1,HostageY1,HostageDamage1, ...,HostageXw,HostageYw,HostageDamag
 			Hostage hostage=new Hostage(hostageX,hostageY,damage);
 			hostageList.add(hostage);
 		}
+		}
+		idx++;
 
 //		System.out.println(m+" "+n);
 //		System.out.println(neo);
@@ -129,7 +144,7 @@ HostageX1,HostageY1,HostageDamage1, ...,HostageXw,HostageYw,HostageDamag
 		Cell[][] matrix= buildMatrix(m,n, tele, agentList, pillList, padList, hostageList);
 		
 //		System.out.println(visualize(matrix,neo));
-		State state= new State(neo, c, hostageList, new ArrayList(), agentList, pillList,padList, tele, matrix,0,0,new ArrayList<>());
+		State state= new State(neo, c, hostageList, new ArrayList<Hostage>(), agentList, pillList,padList, tele, matrix,0,0,new ArrayList<>());
 		return state;
 	}
 
@@ -234,7 +249,7 @@ HostageX1,HostageY1,HostageDamage1, ...,HostageXw,HostageYw,HostageDamag
 }
 	
 	
-	private static class Pair{
+	public static class Pair{
 		int x,y;
 
 		public Pair(int x, int y) {

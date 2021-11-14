@@ -2,8 +2,12 @@ package code.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.StringTokenizer;
+import java.util.Map.Entry;
 
 import code.GenericState;
+import code.util.Utils.Pair;
 
 public class State implements GenericState {
 
@@ -13,7 +17,7 @@ public class State implements GenericState {
 	ArrayList<Hostage> hostages; // carries alived hostages or transformed hostages in case that damage=100
 	ArrayList<Hostage> carriedHostages;
 	ArrayList<Hostage> telephoneBoothHostages;
-	
+
 	int hostagesTransformed;//x
 	int killedAgents;//general counter for all killed agents included those who are transformed from hostages >=x
 
@@ -70,6 +74,243 @@ public class State implements GenericState {
 		return new State(neo, c, hostages, carriedHostages, agents, pills, pads, telephoneBooth, matrix,hostagesTransformed,killedAgents,telephoneBoothHostages);
 
 	}
+
+
+	/*
+M,N; C; NeoX,NeoY,NeoDamage; TelephoneX,TelehoneY;
+AgentX1,AgentY1, ...,AgentXk,AgentYk;
+PillX1,PillY1, ...,PillXg,PillYg;
+StartPadX1,StartPadY1,FinishPadX1,FinishPadY1,...,
+StartPadXl,StartPadYl,FinishPadXl,FinishPadYl;
+HostageX1,HostageY1,HostageDamage1, ...,HostageXw,HostageYw,HostageDamag;
+CarriedHostageX1,CarriedHostageY1,CarriedHostageDamage1, ...,CarriedHostageXw,CarriedHostageYw,CarriedHostageDamag;
+TelephoneBoothHostageX1,TelephoneBoothHostageY1,TelephoneBoothHostageDamage1, ...,TelephoneBoothHostageXw,TelephoneBoothHostageYw,TelephoneBoothHostageDamag;
+hostagesTransformed;killedAgents
+	 */
+
+	public String encode() {
+		int m = matrix[0].length;
+		int n = matrix.length;
+		String res = m+","+n+";"+c+";"+neo.x+","+neo.y+","+neo.damage+";"+telephoneBooth.x+","+telephoneBooth.y+";";
+
+		//Agents encoding
+		for(int i = 0; i < agents.size(); i++) {
+			Agent agent=agents.get(i);
+			res+=""+agent.x+","+agent.y;
+
+			res+=(i < agents.size()-1)?",":"";
+		}
+		res+=";";
+
+		//Pills encoding
+		for(int i = 0; i < pills.size(); i++) {
+			Pill pill=pills.get(i);
+			res+=""+pill.x+","+pill.y;
+
+			res+=(i < pills.size()-1)?",":"";
+		}
+		res+=";";
+
+		//Pads encoding
+		for(int i = 0; i < pads.size(); i++) {
+			Pad srcPad=pads.get(i);
+			for(int j = 0; j< srcPad.destinations.size();j++) {		
+				Pad dest = srcPad.destinations.get(j);
+				res+=""+srcPad.x+","+srcPad.y+","+dest.x+","+dest.y;
+				res+=(j < srcPad.destinations.size() - 1)? ",":"";
+			}
+
+			res+=(i < pads.size()-1)?",":"";
+		}
+		res+=";";
+
+
+		//Hostages encoding
+		for(int i = 0; i < hostages.size(); i++) {
+			Hostage hostage=hostages.get(i);
+			res+=""+hostage.x+","+hostage.y+","+hostage.damage;
+
+			res+=(i < hostages.size()-1)?",":"";
+		}
+		res+=";";
+
+		//Carried hostages encoding
+		for(int i = 0; i < carriedHostages.size(); i++) {
+			Hostage hostage=carriedHostages.get(i);
+			res+=""+hostage.x+","+hostage.y+","+hostage.damage;
+
+			res+=(i < carriedHostages.size()-1)?",":"";
+		}
+		res+=";";
+
+		//Telephone booth hostages encoding
+		for(int i = 0; i < telephoneBoothHostages.size(); i++) {
+			Hostage hostage=telephoneBoothHostages.get(i);
+			res+=""+hostage.x+","+hostage.y+","+hostage.damage;
+
+			res+=(i < telephoneBoothHostages.size()-1)?",":"";
+		}
+		res+=";";
+
+		// HostagesTransformed and agents killed
+		res+=hostagesTransformed+";"+killedAgents;		
+		return res;	
+	}
+	
+	public static State decode(String s) {
+
+		StringTokenizer st=new StringTokenizer(s,";");
+		String []arr = s.split(";");
+		int idx = 0;
+		//  M,N size of grid
+		StringTokenizer internalSt=new StringTokenizer(arr[idx++],",");
+		int n=Integer.parseInt(internalSt.nextToken());//columns
+		int m=Integer.parseInt(internalSt.nextToken());//rows
+		
+		
+		
+		// c
+		internalSt=new StringTokenizer(arr[idx++],",");
+		int c=Integer.parseInt(internalSt.nextToken());
+
+		//Neo location and damage
+		internalSt=new StringTokenizer(arr[idx++],",");
+		int neoX=Integer.parseInt(internalSt.nextToken());
+		int neoY=Integer.parseInt(internalSt.nextToken());
+		int neoDamage=Integer.parseInt(internalSt.nextToken());
+		Neo neo=new Neo(neoX, neoY);
+		neo.damage = neoDamage;
+
+
+		//Telephone booth location
+		internalSt=new StringTokenizer(arr[idx++],",");
+		int teleX=Integer.parseInt(internalSt.nextToken());
+		int teleY=Integer.parseInt(internalSt.nextToken());
+		TelephoneBooth tele=new TelephoneBooth(teleX, teleY);
+
+
+		//Agent locations
+		ArrayList<Agent> agentList=new ArrayList();
+		if(idx<arr.length&&!arr[idx].equals("")) {
+		internalSt=new StringTokenizer(arr[idx],",");
+		while(internalSt.hasMoreElements()) {
+			int agentX=Integer.parseInt(internalSt.nextToken());
+			int agentY=Integer.parseInt(internalSt.nextToken());
+			Agent agent=new Agent(agentX,agentY);
+			agentList.add(agent);
+		}
+		}
+		idx++;
+
+		//pills location 
+		ArrayList<Pill> pillList=new ArrayList();
+		if(idx<arr.length&&!arr[idx].equals("")) {
+		internalSt=new StringTokenizer(arr[idx],",");
+		while(internalSt.hasMoreElements()) {
+			String x=internalSt.nextToken();
+			int pillX=Integer.parseInt(x);
+			int pillY=Integer.parseInt(internalSt.nextToken());
+			Pill pill=new Pill(pillX,pillY);
+			pillList.add(pill);
+		}
+		}
+		idx++;
+
+		//pads location 
+		ArrayList<Pad> padList=new ArrayList<>();
+		if(idx<arr.length&&!arr[idx].equals("")) {
+		internalSt=new StringTokenizer(arr[idx],",");
+		HashMap<Pair,Pad> padMap=new HashMap<>();// stores reference to each already created pad to avoid recreating it.
+		while(internalSt.hasMoreElements()) {
+			int startX=Integer.parseInt(internalSt.nextToken());
+			int startY=Integer.parseInt(internalSt.nextToken());
+			Pair startLocation=new Pair(startX,startY);
+			Pad start=new Pad(startX,startY);
+			if(padMap.get(startLocation)!=null)
+			{
+				start=padMap.get(startLocation);
+			}else {
+				padMap.put(startLocation, start);
+			}
+			
+			
+			int finishX=Integer.parseInt(internalSt.nextToken());
+			int finishY=Integer.parseInt(internalSt.nextToken());
+			Pair finishLocation=new Pair(finishX,finishY);
+			Pad finish=new Pad(finishX,finishY);
+			if(padMap.get(finishLocation)!=null)
+			{	
+				finish=padMap.get(finishLocation);
+			}else {
+				padMap.put(finishLocation, finish);
+			}
+			
+			start.addDestination(finish);
+			
+		}
+
+		for(Entry<Pair,Pad> e:padMap.entrySet() ) {
+			padList.add(e.getValue());
+		}
+		}
+		idx++;
+		
+		//hostage location
+		
+		ArrayList<Hostage> hostageList=new ArrayList();
+		if(idx<arr.length&&!arr[idx].equals("")) {
+		internalSt=new StringTokenizer(arr[idx],",");
+		while(internalSt.hasMoreElements()) {
+			int hostageX=Integer.parseInt(internalSt.nextToken());
+			int hostageY=Integer.parseInt(internalSt.nextToken());
+			int damage=Integer.parseInt(internalSt.nextToken());
+			Hostage hostage=new Hostage(hostageX,hostageY,damage);
+			hostageList.add(hostage);
+		}
+		}
+		idx++;
+
+		ArrayList<Hostage> carriedHostageList=new ArrayList();
+		if(idx<arr.length&&!arr[idx].equals("")) {
+		internalSt=new StringTokenizer(arr[idx],",");
+		while(internalSt.hasMoreElements()) {
+			int hostageX=Integer.parseInt(internalSt.nextToken());
+			int hostageY=Integer.parseInt(internalSt.nextToken());
+			int damage=Integer.parseInt(internalSt.nextToken());
+			Hostage hostage=new Hostage(hostageX,hostageY,damage);
+			carriedHostageList.add(hostage);
+		}
+		}
+		idx++;
+
+		ArrayList<Hostage> telephoneBoothHostageList=new ArrayList();
+		if(idx<arr.length&&!arr[idx].equals("")) {
+		internalSt=new StringTokenizer(arr[idx],",");
+		while(internalSt.hasMoreElements()) {
+			int hostageX=Integer.parseInt(internalSt.nextToken());
+			int hostageY=Integer.parseInt(internalSt.nextToken());
+			int damage=Integer.parseInt(internalSt.nextToken());
+			Hostage hostage=new Hostage(hostageX,hostageY,damage);
+			telephoneBoothHostageList.add(hostage);
+		}
+		}
+		idx++;
+		
+		int transformedHostages = Integer.parseInt(arr[idx++]);
+		int agentsKilled = Integer.parseInt(arr[idx++]);
+		
+
+				
+		
+		Cell[][] matrix= Utils.buildMatrix(m,n, tele, agentList, pillList, padList, hostageList);
+		
+//		System.out.println(visualize(matrix,neo));
+		State state= new State(neo, c, hostageList, carriedHostageList, agentList, pillList,padList, tele, matrix,transformedHostages,agentsKilled,telephoneBoothHostageList);
+		return state;
+
+	}
+
+
 
 
 	public ArrayList<StateOperatorPair> expand(){
@@ -138,8 +379,8 @@ public class State implements GenericState {
 				nextStates.add(new StateOperatorPair(nextState, operator));
 			}
 		}else {
-//			nextState.oneTimeStep();
-//			nextStates.add(new StateOperatorPair(nextState, operator));
+			//			nextState.oneTimeStep();
+			//			nextStates.add(new StateOperatorPair(nextState, operator));
 
 		}
 	}
@@ -270,9 +511,9 @@ public class State implements GenericState {
 				nextState.pills.remove(i);
 				nextState.matrix[neoX][neoY]=null;
 
-//				nextState.oneTimeStep(); When neo takes pill, we don't increase damage of all hostages. 
+				//				nextState.oneTimeStep(); When neo takes pill, we don't increase damage of all hostages. 
 				nextStates.add(new StateOperatorPair(nextState, "takePill"));
-				
+
 			}
 		}
 	}
@@ -280,13 +521,13 @@ public class State implements GenericState {
 
 
 
-	
+
 	private void handleDropHostages(ArrayList<StateOperatorPair> nextStates) {
 		if(carriedHostages.size()>0) {
-			
+
 			State nextState=this.clone();
 			nextState.telephoneBoothHostages.addAll(nextState.carriedHostages);
-			
+
 			nextState.carriedHostages.clear();
 			nextState.oneTimeStep();
 			nextStates.add(new StateOperatorPair(nextState, "drop"));
@@ -349,17 +590,17 @@ public class State implements GenericState {
 	public static int getIndex(int i, int j ,int m) {
 		return i*m+j;
 	}
-	
+
 	public void floydWarshal() {
 		int n=matrix.length;
 		int m=matrix[0].length;
-	
+
 		mat=new int[n*m][n*m];
-		
+
 		for(int i=0;i<mat.length;i++) {
 			Arrays.fill(mat[i], INF);
 		}
-		
+
 		for(Pad pad:pads) {
 			for(Pad dest:pad.destinations) {
 				int srcIdx=getIndex(pad.x, pad.y, m);
@@ -369,7 +610,7 @@ public class State implements GenericState {
 		}
 		int dx[]=new int[] {1,-1,0,0};
 		int dy[]=new int[] {0,0,1,-1};
-		
+
 		for(int x=0;x<n;x++) {
 			for(int y=0;y<m;y++) {
 				for(int i=0;i<dx.length;i++) {
@@ -382,7 +623,7 @@ public class State implements GenericState {
 				}
 			}
 		}
-		
+
 		//floyd warshal part
 		for(int i=0;i<mat.length;i++) {
 			for(int j=0;j<mat.length;j++) {
@@ -392,9 +633,9 @@ public class State implements GenericState {
 				}
 			}
 		}
-		
+
 		computed=true;
-				
+
 	}
 	public int h2() {
 		if(!computed) {
@@ -408,16 +649,20 @@ public class State implements GenericState {
 			int neoIdx=getIndex(neo.x, neo.y, m);
 			int hostageIdx=getIndex(hostage.x,hostage.y,m);
 			int telephoneIndex=getIndex(telephoneBooth.x, telephoneBooth.y, m);
-			
+
 			int totalDistance=mat[neoIdx][hostageIdx]+mat[hostageIdx][telephoneIndex]+1;// this +1 is to count for the carry action
-			
+
 			if(damage+totalDistance*2>=100)
 				cntDeadHostage++;
 		}
 		return cntDeadHostage;
-		
+
 	}
 
+
+	public String visualize() {
+		return Utils.visualize(matrix, neo, carriedHostages, telephoneBoothHostages);
+	}
 
 	public Neo getNeo() {
 		return neo;

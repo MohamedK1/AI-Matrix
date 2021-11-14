@@ -1,9 +1,5 @@
 package code.util;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 public class Agent  implements CellContent{
 
@@ -58,20 +54,6 @@ public class Agent  implements CellContent{
 		return agent;
 	}
 	
-	
-	public static void main(String[] args) {
-		Agent a=new Agent(3, 4);
-		Agent b=a.clone();
-		b.x=60;
-		ArrayList<Agent> list=new ArrayList<>();
-		list.add(a);
-		list.add(b);
-		
-		ArrayList<Agent> l=Utils.cloneList(list);
-		l.get(0).x=50;
-		System.out.println(list);
-		System.out.println(l);
-	}
 	
 	
 
