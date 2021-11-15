@@ -15,6 +15,7 @@ import java.util.function.Function;
 import code.util.SearchTreeNode;
 import code.util.State;
 import code.util.State.StateOperatorPair;
+import code.util.TelephoneBooth;
 import code.util.Utils;
 
 public class Matrix extends GenericSearch{
@@ -163,6 +164,7 @@ public class Matrix extends GenericSearch{
 
 	}
 
+	
 	public static String constructPath(SearchTreeNode node) {
 		Stack<String> sequence=new Stack();
 		int cnt=0;
@@ -211,7 +213,7 @@ public class Matrix extends GenericSearch{
 		State s=(State)state;
 
 		// TODO Auto-generated method stub
-		return s.getHostages().size()==0&&s.getCarriedHostages().size()==0;
+		return s.getHostages().size()==0&&s.getCarriedHostages().size()==0&&s.getNeo().x==s.getTelephoneBooth().x&&s.getNeo().y==s.getTelephoneBooth().y;
 	}
 
 //	@Override

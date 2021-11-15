@@ -1,7 +1,7 @@
 package code.util;
 
 public class TelephoneBooth implements CellContent {
-	int x,y;
+	public int x,y;
 
 	public TelephoneBooth(int x, int y) {
 		super();

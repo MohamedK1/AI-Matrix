@@ -1,7 +1,7 @@
 package code.util;
 
 public class Neo  implements CellContent{
-int x,y;
+public int x,y;
 int damage;
 
 
