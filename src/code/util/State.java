@@ -26,7 +26,7 @@ public class State implements GenericState {
 	ArrayList<Pad> pads;
 	TelephoneBooth telephoneBooth;
 	Cell[][] matrix;	
-
+	boolean[][] visitedCell;
 
 
 
@@ -313,9 +313,9 @@ hostagesTransformed;killedAgents
 
 
 
-	public ArrayList<StateOperatorPair> expand(){
+	public ArrayList<StateOperatorPair> expand(String prevAction){
 		ArrayList<StateOperatorPair> nextStates=new ArrayList<>();
-		if(neo.damage==100)return nextStates;
+		if(neo.damage>=100)return nextStates;
 
 		int neoX=neo.x,neoY=neo.y;
 		Cell curCell=matrix[neoX][neoY];
@@ -334,7 +334,7 @@ hostagesTransformed;killedAgents
 			handleTakePill(nextStates, neoX, neoY);
 		}
 
-		if(curCell!=null&&curCell.cellContent instanceof Pad) {
+		if(curCell!=null&&curCell.cellContent instanceof Pad&&!prevAction.equals("fly")) {
 			handleUsePad(nextStates, neoX, neoY);
 		}
 
@@ -345,10 +345,16 @@ hostagesTransformed;killedAgents
 		//		handleKillAgent(nextStates, neoX, neoY+1);
 		//		handleKillAgent(nextStates, neoX, neoY-1);
 
-
+		if(!prevAction.equals("up"))
 		handleMove(nextStates, neoX+1, neoY,"down");
+
+		if(!prevAction.equals("down"))
 		handleMove(nextStates, neoX-1, neoY,"up");
+
+		if(!prevAction.equals("left"))
 		handleMove(nextStates, neoX, neoY+1,"right");
+
+		if(!prevAction.equals("right"))
 		handleMove(nextStates, neoX, neoY-1,"left");
 
 		return nextStates;
@@ -585,7 +591,7 @@ hostagesTransformed;killedAgents
 	}
 
 	static int[][] mat;// matrix containing the shortest path between (i,j) and (k,l) in mat[i*m+j][k*m+l] where m is the number of cols
-	static boolean computed=false;// computed is true if mat is already calculated
+	static public boolean computed=false;// computed is true if mat is already calculated
 	static int INF=(int)1e8;
 	public static int getIndex(int i, int j ,int m) {
 		return i*m+j;
