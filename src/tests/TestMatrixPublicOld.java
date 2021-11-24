@@ -1,9 +1,8 @@
 package tests;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -13,20 +12,22 @@ import code.Matrix;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 
-public class TestMatrixPublic {
+public class TestMatrixPublicOld {
 	
-	String grid0 = "5,5;2;3,4;1,2;0,3,1,4;2,3;4,4,0,2,0,2,4,4;2,2,91,2,4,62";
+	String grid0 = "5,5;2;4,3;2,1;2,0,0,4,0,3,0,1;3,1,3,2;4,4,3,3,3,3,4,4;4,0,17,1,2,54,0,0,46,4,1,22";
 	String grid1 = "5,5;1;1,4;1,0;0,4;0,0,2,2;3,4,4,2,4,2,3,4;0,2,32,0,1,38";
-	String grid2 = "5,5;2;3,2;0,1;4,1;0,3;1,2,4,2,4,2,1,2,0,4,3,0,3,0,0,4;1,1,77,3,4,34";
-	String grid3 = "5,5;1;0,4;4,4;0,3,1,4,2,1,3,0,4,1;4,0;2,4,3,4,3,4,2,4;0,2,98,1,2,98,2,2,98,3,2,98,4,2,98,2,0,1";
-	String grid4 = "5,5;1;0,4;4,4;0,3,1,4,2,1,3,0,4,1;4,0;2,4,3,4,3,4,2,4;0,2,98,1,2,98,2,2,98,3,2,98,4,2,98,2,0,98,1,0,98";
-	String grid5 = "5,5;2;0,4;3,4;3,1,1,1;2,3;3,0,0,1,0,1,3,0;4,2,54,4,0,85,1,0,43";
-	String grid6 = "5,5;2;3,0;4,3;2,1,2,2,3,1,0,0,1,1,4,2,3,3,1,3,0,1;2,4,3,2,3,4,0,4;4,4,4,0,4,0,4,4;1,4,57,2,0,46";
-	String grid7 = "5,5;3;1,3;4,0;0,1,3,2,4,3,2,4,0,4;3,4,3,0,4,2;1,4,1,2,1,2,1,4,0,3,1,0,1,0,0,3;4,4,45,3,3,12,0,2,88";
-	String grid8 = "5,5;2;4,3;2,1;2,0,0,4,0,3,0,1;3,1,3,2;4,4,3,3,3,3,4,4;4,0,17,1,2,54,0,0,46,4,1,22";
-	String grid9 = "5,5;2;0,4;1,4;0,1,1,1,2,1,3,1,3,3,3,4;1,0,2,4;0,3,4,3,4,3,0,3;0,0,30,3,0,80,4,4,80";
-	String grid10 = "5,5;4;1,1;4,1;2,4,0,4,3,2,3,0,4,2,0,1,1,3,2,1;4,0,4,4,1,0;2,0,0,2,0,2,2,0;0,0,62,4,3,45,3,3,39,2,3,40";
-	
+	String grid2 = "8,8;1;2,4;5,3;0,4,1,4,3,0,7,7,5,6;0,1,1,3;4,4,3,1,3,1,4,4,0,7,7,0,7,0,0,7;0,2,28,4,0,30,5,5,5";
+	String grid3 = "6,6;2;2,4;2,2;0,4,1,4,3,0,4,2;0,1,1,3;4,4,3,1,3,1,4,4;0,0,94,1,2,38,4,1,76,4,0,80";
+	String grid4 = "7,7;3;0,0;0,6;0,3,0,4,2,3,4,5,6,6,5,4;0,2,4,3;2,0,0,5,0,5,2,0;1,0,83,2,5,38,6,4,66,2,6,20";
+	String grid5 = "5,5;2;0,4;1,4;0,1,1,1,2,1,3,1,3,3,3,4;1,0,2,4;0,3,4,3,4,3,0,3;0,0,30,3,0,80,4,4,80";
+	String grid6 = "6,6;2;2,2;2,4;0,1,1,0,3,0,4,1,4,3,3,4,1,4,0,3;0,2;1,3,4,2,4,2,1,3;0,0,2,0,4,2,4,0,2,4,4,98,1,1,98";
+	String grid7 = "7,7;4;3,3;0,2;0,1,1,0,1,1,1,2,2,0,2,2,2,4,2,6,1,4;5,5,5,0;5,1,2,5,2,5,5,1;0,0,98,3,2,98,4,4,98,0,3,98,0,4,98,0,5,98,5,4,98";
+	String grid8 = "7,7;4;5,3;2,5;0,0,0,2,0,6,2,3,5,1;1,1,2,6,6,0;4,0,1,6,1,6,4,0;0,4,33,1,4,1,4,3,11,5,4,2,5,5,69,3,1,95";
+	String grid9 = "7,7;3;4,3;3,2;1,0,1,1,1,3,2,5,5,3,5,5;4,2,2,6,6,2,4,4;1,4,6,4,6,4,1,4,4,0,6,6,6,6,4,0,6,0,0,6,0,6,6,0;0,2,98,1,5,26,3,3,70,6,3,90,6,5,32";
+	String grid10 = "6,6;1;2,2;2,4;0,1,1,0,3,0,4,1,4,3,3,4,1,4,0,3,1,5;0,2;1,3,4,2,4,2,1,3;0,5,90,1,2,92,4,4,2,5,5,1,1,1,98";
+	String grid11 = "9,9;2;8,0;3,5;0,1,0,3,1,0,1,1,1,2,0,7,1,8,3,8,6,1,6,5;0,6,2,8;8,1,4,5,4,5,8,1;0,0,95,0,2,98,0,8,94,2,5,13,2,6,39";
+
+
 	
 	@Test(timeout = 10000)
 	public void testa0() throws Exception {
@@ -56,49 +57,50 @@ public class TestMatrixPublic {
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid3, solution));
 	}
 	
-	@Test(timeout = 10000)
+	
+	@Test(timeout = 120000)
 	public void testa4() throws Exception {
 		String solution = Matrix.solve(grid4, "BF", false);
-		assertTrue("The output actions do not lead to a goal state.", solution.equals("No Solution"));
+		solution = solution.replace(" ", "");
+		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid4, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 60000)
 	public void testa5() throws Exception {
 		String solution = Matrix.solve(grid5, "BF", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid5, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 70000)
 	public void testa6() throws Exception {
 		String solution = Matrix.solve(grid6, "BF", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid6, solution));
 	}
 	
-	@Test(timeout = 30000)
+	@Test(timeout = 90000)
 	public void testa7() throws Exception {
 		String solution = Matrix.solve(grid7, "BF", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid7, solution));
+		assertTrue("The output actions do not lead to a goal state.", solution.equals("No Solution"));
 	}
 	
-	@Test(timeout = 30000)
+	@Test(timeout = 180000)
 	public void testa8() throws Exception {
 		String solution = Matrix.solve(grid8, "BF", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid8, solution));
 	}
 	
-	@Test(timeout = 30000)
+	@Test(timeout = 240000)
 	public void testa9() throws Exception {
 		String solution = Matrix.solve(grid9, "BF", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid9, solution));
 	}
 	
-	@Test(timeout = 60000)
-	public void testaz10() throws Exception {
+	@Test(timeout = 180000)
+	public void testa10() throws Exception {
 		String solution = Matrix.solve(grid10, "BF", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid10, solution));
@@ -132,41 +134,41 @@ public class TestMatrixPublic {
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid3, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 60000)
 	public void testb4() throws Exception {
 		String solution = Matrix.solve(grid4, "DF", false);
-		assertTrue("The output actions do not lead to a goal state.", solution.equals("No Solution"));
+		solution = solution.replace(" ", "");
+		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid4, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 60000)
 	public void testb5() throws Exception {
 		String solution = Matrix.solve(grid5, "DF", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid5, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 60000)
 	public void testb6() throws Exception {
 		String solution = Matrix.solve(grid6, "DF", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid6, solution));
 	}
 	
-	@Test(timeout = 30000)
+	@Test(timeout = 60000)
 	public void testb7() throws Exception {
 		String solution = Matrix.solve(grid7, "DF", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.",applyPlan(grid7, solution) );
+		assertTrue("The output actions do not lead to a goal state.", solution.equals("No Solution"));
 	}
 	
-	@Test(timeout = 30000)
+	@Test(timeout = 60000)
 	public void testb8() throws Exception {
 		String solution = Matrix.solve(grid8, "DF", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.",applyPlan(grid8, solution));
 	}
 	
-	@Test(timeout = 30000)
+	@Test(timeout = 60000)
 	public void testb9() throws Exception {
 		String solution = Matrix.solve(grid9, "DF", false);
 		solution = solution.replace(" ", "");
@@ -174,80 +176,53 @@ public class TestMatrixPublic {
 	}
 	
 	@Test(timeout = 60000)
-	public void testbz10() throws Exception {
+	public void testb10() throws Exception {
 		String solution = Matrix.solve(grid10, "DF", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid10, solution));
 	}
 	
-	@Test(timeout = 10000)
+	
+	@Test(timeout = 120000)
 	public void testc0() throws Exception {
 		String solution = Matrix.solve(grid0, "UC", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid0, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 70000)
 	public void testc1() throws Exception {
 		String solution = Matrix.solve(grid1, "UC", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid1, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 70000)
 	public void testc2() throws Exception {
 		String solution = Matrix.solve(grid2, "UC", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid2, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 120000)
 	public void testc3() throws Exception {
 		String solution = Matrix.solve(grid3, "UC", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid3, solution));
 	}
 	
-	
-	@Test(timeout = 10000)
+	@Test(timeout = 500000)
 	public void testc4() throws Exception {
 		String solution = Matrix.solve(grid4, "UC", false);
-		assertTrue("The output actions do not lead to a goal state.", solution.equals("No Solution"));
+		solution = solution.replace(" ", "");
+		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid4, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 70000)
 	public void testc5() throws Exception {
 		String solution = Matrix.solve(grid5, "UC", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid5, solution));
-	}
-	
-	@Test(timeout = 30000)
-	public void testc6() throws Exception {
-		String solution = Matrix.solve(grid6, "UC", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid6, solution));
-	}
-	
-	@Test(timeout = 400000)
-	public void testc7() throws Exception {
-		String solution = Matrix.solve(grid7, "UC", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.",  applyPlan(grid7, solution));
-	}
-	
-	@Test(timeout = 400000)
-	public void testc8() throws Exception {
-		String solution = Matrix.solve(grid8, "UC", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid8, solution));
-	}
-	
-	@Test(timeout = 400000)
-	public void testc9() throws Exception {
-		String solution = Matrix.solve(grid9, "UC", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid9, solution));
 	}
 	
 	
@@ -257,6 +232,7 @@ public class TestMatrixPublic {
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid0, solution));
 	}
+
 	
 	@Test(timeout = 10000)
 	public void testd1() throws Exception {
@@ -279,307 +255,193 @@ public class TestMatrixPublic {
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid3, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 120000)
+	public void testd4() throws Exception {
+		String solution = Matrix.solve(grid4, "ID", false);
+		solution = solution.replace(" ", "");
+		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid4, solution));
+	}
+	
+	@Test(timeout = 60000)
 	public void testd5() throws Exception {
 		String solution = Matrix.solve(grid5, "ID", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid5, solution));
 	}
 	
-	@Test(timeout = 10000)
-	public void testd6() throws Exception {
-		String solution = Matrix.solve(grid6, "ID", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid6, solution));
-	}
-	
 
-	@Test(timeout = 10000)
+	@Test(timeout = 120000)
 	public void teste0() throws Exception {
 		String solution = Matrix.solve(grid0, "GR1", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid0, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 70000)
 	public void teste1() throws Exception {
 		String solution = Matrix.solve(grid1, "GR1", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid1, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 70000)
 	public void teste2() throws Exception {
 		String solution = Matrix.solve(grid2, "GR1", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid2, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 70000)
 	public void teste3() throws Exception {
 		String solution = Matrix.solve(grid3, "GR1", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid3, solution));
 	}
 	
-	@Test(timeout = 10000)
+
+	@Test(timeout = 400000)
 	public void teste4() throws Exception {
 		String solution = Matrix.solve(grid4, "GR1", false);
-		assertTrue("The output actions do not lead to a goal state.", solution.equals("No Solution"));
+		solution = solution.replace(" ", "");
+		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid4, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 70000)
 	public void teste5() throws Exception {
 		String solution = Matrix.solve(grid5, "GR1", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid5, solution));
 	}
 	
-	@Test(timeout = 30000)
-	public void teste6() throws Exception {
-		String solution = Matrix.solve(grid6, "GR1", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid6, solution));
-	}
 	
-	@Test(timeout = 400000)
-	public void teste7() throws Exception {
-		String solution = Matrix.solve(grid7, "GR1", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid7, solution));
-	}
-	
-	@Test(timeout = 400000)
-	public void teste8() throws Exception {
-		String solution = Matrix.solve(grid8, "GR1", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid8, solution));
-	}
-	
-	@Test(timeout = 400000)
-	public void teste9() throws Exception {
-		String solution = Matrix.solve(grid9, "GR1", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid9, solution));
-	}
-	
-	@Test(timeout = 10000)
+	@Test(timeout = 120000)
 	public void testf0() throws Exception {
 		String solution = Matrix.solve(grid0, "GR2", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid0, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 70000)
 	public void testf1() throws Exception {
 		String solution = Matrix.solve(grid1, "GR2", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid1, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 70000)
 	public void testf2() throws Exception {
 		String solution = Matrix.solve(grid2, "GR2", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid2, solution));
 	}
-	
-	@Test(timeout = 10000)
+
+	@Test(timeout = 70000)
 	public void testf3() throws Exception {
 		String solution = Matrix.solve(grid3, "GR2", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid3, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 400000)
 	public void testf4() throws Exception {
 		String solution = Matrix.solve(grid4, "GR2", false);
-		assertTrue("The output actions do not lead to a goal state.", solution.equals("No Solution"));
+		solution = solution.replace(" ", "");
+		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid4, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 70000)
 	public void testf5() throws Exception {
 		String solution = Matrix.solve(grid5, "GR2", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid5, solution));
 	}
-	
-	@Test(timeout = 30000)
-	public void testf6() throws Exception {
-		String solution = Matrix.solve(grid6, "GR2", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid6, solution));
-	}
-	
-	@Test(timeout = 400000)
-	public void testf7() throws Exception {
-		String solution = Matrix.solve(grid7, "GR2", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid7, solution));
-	}
-	
-	@Test(timeout = 400000)
-	public void testf8() throws Exception {
-		String solution = Matrix.solve(grid8, "GR2", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid8, solution));
-	}
-	
-	@Test(timeout = 400000)
-	public void testf9() throws Exception {
-		String solution = Matrix.solve(grid9, "GR2", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid9, solution));
-	}
-	
-	@Test(timeout = 10000)
+
+	@Test(timeout = 70000)
 	public void testg0() throws Exception {
 		String solution = Matrix.solve(grid0, "AS1", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid0, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 70000)
 	public void testg1() throws Exception {
 		String solution = Matrix.solve(grid1, "AS1", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid1, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 70000)
 	public void testg2() throws Exception {
 		String solution = Matrix.solve(grid2, "AS1", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid2, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 70000)
 	public void testg3() throws Exception {
 		String solution = Matrix.solve(grid3, "AS1", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid3, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 300000)
 	public void testg4() throws Exception {
 		String solution = Matrix.solve(grid4, "AS1", false);
-		assertTrue("The output actions do not lead to a goal state.", solution.equals("No Solution"));
+		solution = solution.replace(" ", "");
+		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid4, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 70000)
 	public void testg5() throws Exception {
 		String solution = Matrix.solve(grid5, "AS1", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid5, solution));
 	}
 	
-	@Test(timeout = 30000)
-	public void testg6() throws Exception {
-		String solution = Matrix.solve(grid6, "AS1", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid6, solution));
-	}
-
-	@Test(timeout = 400000)
-	public void testg7() throws Exception {
-		String solution = Matrix.solve(grid7, "AS1", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid7, solution));
-	}
 	
-	@Test(timeout = 400000)
-	public void testg8() throws Exception {
-		String solution = Matrix.solve(grid8, "AS1", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid8, solution));
-	}
-	
-	@Test(timeout = 400000)
-	public void testg9() throws Exception {
-		String solution = Matrix.solve(grid9, "AS1", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid9, solution));
-	}
-	
-	@Test(timeout = 400000)
-	public void testgz10() throws Exception {
-		String solution = Matrix.solve(grid10, "AS1", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid10, solution));
-	}
-
-	
-	@Test(timeout = 10000)
+	@Test(timeout = 70000)
 	public void testh0() throws Exception {
 		String solution = Matrix.solve(grid0, "AS2", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid0, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 70000)
 	public void testh1() throws Exception {
 		String solution = Matrix.solve(grid1, "AS2", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid1, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 70000)
 	public void testh2() throws Exception {
 		String solution = Matrix.solve(grid2, "AS2", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid2, solution));
 	}
 	
-	@Test(timeout = 10000)
+	@Test(timeout = 70000)
 	public void testh3() throws Exception {
 		String solution = Matrix.solve(grid3, "AS2", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid3, solution));
 	}
 	
-	@Test(timeout = 10000)
-	public void testh4() throws Exception {
-		String solution = Matrix.solve(grid4, "AS2", false);
-		assertTrue("The output actions do not lead to a goal state.", solution.equals("No Solution"));
-	}
-	
-	@Test(timeout = 10000)
+	@Test(timeout = 70000)
 	public void testh5() throws Exception {
 		String solution = Matrix.solve(grid5, "AS2", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid5, solution));
 	}
-	
-	@Test(timeout = 30000)
-	public void testh6() throws Exception {
-		String solution = Matrix.solve(grid6, "AS2", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid6, solution));
-	}
 
-	@Test(timeout = 400000)
+	@Test(timeout = 1000000)
 	public void testh7() throws Exception {
 		String solution = Matrix.solve(grid7, "AS2", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid7, solution));
+		assertTrue("The output actions do not lead to a goal state.",  solution.equals("No Solution"));
 	}
 	
-	@Test(timeout = 400000)
-	public void testh8() throws Exception {
-		String solution = Matrix.solve(grid8, "AS2", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid8, solution));
-	}
-	
-	@Test(timeout = 400000)
-	public void testh9() throws Exception {
-		String solution = Matrix.solve(grid9, "AS2", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid9, solution));
-	}
-	
-	@Test(timeout = 400000)
-	public void testhz10() throws Exception {
+	@Test(timeout = 300000)
+	public void testh10() throws Exception {
 		String solution = Matrix.solve(grid10, "AS2", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid10, solution));
@@ -595,10 +457,10 @@ public class TestMatrixPublic {
 			int x01;
 			int m1;
 			int m2;
-			int NeosDamage;
+			int m3;
 			ArrayList<String> xyz;
 			ArrayList<String> xyzw;
-			ArrayList<String> pills;
+			ArrayList<String> m4;
 			HashMap<String,String> m5;
 			HashMap<String,Integer> m7;
 			HashMap<String,Integer> m6;
@@ -617,10 +479,10 @@ public class TestMatrixPublic {
 				this.x01 = x01;
 				this.m1 = m1;
 				this.m2 = 0;
-				this.NeosDamage = 0;
+				this.m3 = 0;
 				this.xyz = xyz;
 				this.xyzw = new ArrayList<String>();
-				this.pills = m4;
+				this.m4 = m4;
 				this.m5 = m5;
 				this.m7 = m7;
 				this.m6 = new HashMap<String,Integer>();
@@ -652,8 +514,7 @@ public class TestMatrixPublic {
 
 			public boolean f42(int x, int y) {
 				String ln = f1(x,y);
-				if(this.xyz.contains(ln) || this.xyzw.contains(ln)
-						|| (this.m7.containsKey(ln) && this.m7.get(ln)>97))
+				if(this.xyz.contains(ln) || (this.m7.containsKey(ln) && this.m7.get(ln)>97))
 					return false;
 				return true;	
 			}
@@ -684,7 +545,7 @@ public class TestMatrixPublic {
 
 			}
 			
-			public boolean applyRight() {
+			public boolean f4() {
 				if(!f42(x00, x01+1)) return false;
 				if(x01 + 1 < this.n)
 					x01++;
@@ -695,6 +556,9 @@ public class TestMatrixPublic {
 			public boolean f100() {
 				ArrayList<String> acdc = f52(x00,x01);
 				if(acdc.size()>0) {
+					if(m7.containsKey(f1(x00,x01)))
+						if(m7.get(f1(x00,x01))>97)
+							return false;
 					for(String led:acdc) {
 						if(xyz.contains(led)) {
 							xyz.remove(led);
@@ -705,8 +569,8 @@ public class TestMatrixPublic {
 							this.m23++;
 						}
 					}
-					NeosDamage +=20;
-					if(NeosDamage == 100)
+					m3 +=20;
+					if(m3 == 100)
 						ll = true;
 					
 					ll2();
@@ -755,14 +619,20 @@ public class TestMatrixPublic {
 				
 			}
 			
-			public boolean handleTakePill() {
-				if(this.pills.contains(f1(x00,x01))) {
-					NeosDamage = (NeosDamage -20 <0) ? 0 : NeosDamage -20;
+			public boolean f32() {
+				if(this.m4.contains(f1(x00,x01))) {
+					m3 = (m3 -20 <0) ? 0 : m3 -20;
 					for(String abc: m7.keySet()) {
 						int beatles = m7.get(abc)-20 <0? 0 : m7.get(abc)-20;
 						m7.put(abc,beatles);
 					}
-					this.pills.remove(f1(x00,x01));
+					for(String abc: m6.keySet()) {
+						if(m6.get(abc)<100) {
+							int beatles = m6.get(abc)-20 <0? 0 : m6.get(abc)-20;
+							m6.put(abc,beatles);
+						}
+					}
+					this.m4.remove(f1(x00,x01));
 					return true;
 				}
 				return false;
@@ -801,7 +671,7 @@ public class TestMatrixPublic {
 			}
 			
 			public boolean grace() {	
-				return !this.ll && this.NeosDamage<100 && this.m7.size() == 0 
+				return !this.ll && this.m3<100 && this.m7.size() == 0 
 						&& this.xyzw.size() == 0 && this.x00 == this.x10
 						&& this.x01 == this.x11;
 			}
@@ -809,6 +679,7 @@ public class TestMatrixPublic {
 
 			
 			public static boolean applyPlan(String grid, String solution) {
+//				System.out.println(solution);
 				String[] solutionArray  = solution.split(";");
 				String plan = solutionArray[0];
 				int blue = Integer.parseInt(solutionArray[1]);
@@ -874,7 +745,7 @@ public class TestMatrixPublic {
 						linkin = s.f3();
 						break;
 					case "right":
-						linkin = s.applyRight();
+						linkin = s.f4();
 						break;
 					case "left":
 						linkin = s.applyLeft();
@@ -889,7 +760,7 @@ public class TestMatrixPublic {
 						linkin = s.f320();
 						break;
 					case "takePill":
-						linkin = s.handleTakePill();
+						linkin = s.f32();
 						break;
 					case "kill":
 						linkin = s.f100();
@@ -897,16 +768,13 @@ public class TestMatrixPublic {
 					default: linkin = false; break;
 								
 					}
+//					System.out.println(linkin);	
 					if(!linkin)
 						return false;		
 					
 						
 						
 				}
-				
-			
 				return s.grace() && s.m23 == doors && s.m10.size() == blue;
 			}
 }
-// failures: c2,c7,g2,g7,gz10,z10
-// failed :  c3,c7, f0,g7,gz10,z10

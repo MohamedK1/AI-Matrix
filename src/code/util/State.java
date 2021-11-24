@@ -87,8 +87,11 @@ CarriedHostageX1,CarriedHostageY1,CarriedHostageDamage1, ...,CarriedHostageXw,Ca
 TelephoneBoothHostageX1,TelephoneBoothHostageY1,TelephoneBoothHostageDamage1, ...,TelephoneBoothHostageXw,TelephoneBoothHostageYw,TelephoneBoothHostageDamag;
 hostagesTransformed;killedAgents
 	 */
-
 	public String encode() {
+		return encode(false);
+	}
+	public String encode(boolean skipDamage) {
+		skipDamage=false;
 		int m = matrix[0].length;
 		int n = matrix.length;
 		String res = m+","+n+";"+c+";"+neo.x+","+neo.y+","+neo.damage+";"+telephoneBooth.x+","+telephoneBooth.y+";";
@@ -128,7 +131,10 @@ hostagesTransformed;killedAgents
 		//Hostages encoding
 		for(int i = 0; i < hostages.size(); i++) {
 			Hostage hostage=hostages.get(i);
-			res+=""+hostage.x+","+hostage.y+","+hostage.damage;
+			
+			res+=""+hostage.x+","+hostage.y;
+			if(!skipDamage)
+				res+=","+hostage.damage;
 
 			res+=(i < hostages.size()-1)?",":"";
 		}
@@ -137,8 +143,12 @@ hostagesTransformed;killedAgents
 		//Carried hostages encoding
 		for(int i = 0; i < carriedHostages.size(); i++) {
 			Hostage hostage=carriedHostages.get(i);
-			res+=""+hostage.x+","+hostage.y+","+hostage.damage;
+			
+			res+=""+hostage.x+","+hostage.y;
+			if(!skipDamage)
+				res+=","+hostage.damage;
 
+			
 			res+=(i < carriedHostages.size()-1)?",":"";
 		}
 		res+=";";
@@ -146,7 +156,10 @@ hostagesTransformed;killedAgents
 		//Telephone booth hostages encoding
 		for(int i = 0; i < telephoneBoothHostages.size(); i++) {
 			Hostage hostage=telephoneBoothHostages.get(i);
-			res+=""+hostage.x+","+hostage.y+","+hostage.damage;
+
+			res+=""+hostage.x+","+hostage.y;
+			if(!skipDamage)
+				res+=","+hostage.damage;
 
 			res+=(i < telephoneBoothHostages.size()-1)?",":"";
 		}
@@ -340,10 +353,6 @@ hostagesTransformed;killedAgents
 
 
 		handleKillAgent(nextStates, neoX, neoY);
-		//		handleKillAgent(nextStates, neoX+1, neoY);
-		//		handleKillAgent(nextStates, neoX-1, neoY);
-		//		handleKillAgent(nextStates, neoX, neoY+1);
-		//		handleKillAgent(nextStates, neoX, neoY-1);
 
 		if(!prevAction.equals("up"))
 		handleMove(nextStates, neoX+1, neoY,"down");
@@ -363,7 +372,7 @@ hostagesTransformed;killedAgents
 
 	public static class StateOperatorPair{
 		public State state;public String operator;
-
+	
 		public StateOperatorPair(State state, String operator) {
 			super();
 			this.state = state;
@@ -394,7 +403,7 @@ hostagesTransformed;killedAgents
 
 	private boolean containsAgent(int x, int y) {
 		for(int i=0;i<hostages.size();i++) {
-			if(hostages.get(i).x==x&&hostages.get(i).y==y&&hostages.get(i).isAgent()) {
+			if(hostages.get(i).x==x&&hostages.get(i).y==y&&(hostages.get(i).isAgent()||hostages.get(i).damage+2>=100)) {
 				return true;
 			}
 		}
@@ -408,7 +417,12 @@ hostagesTransformed;killedAgents
 
 
 	private void handleKillAgent(ArrayList<StateOperatorPair> nextStates, int neoX, int neoY) {
-
+		// handling the  case if there is a hostage that will die after killing action then i will not make this action
+		for(Hostage hostage:hostages) {
+			if(hostage.x==neoX&&hostage.y==neoY&&hostage.damage>=98)return;
+		}
+		
+		
 		int[]dx = new int [] {-1, 1, 0, 0};
 		int[]dy = new int [] {0, 0, -1, 1};
 		boolean killed = false;
@@ -493,31 +507,33 @@ hostagesTransformed;killedAgents
 	private void handleTakePill(ArrayList<StateOperatorPair> nextStates, int neoX, int neoY) {
 		State nextState=this.clone();
 
+		int pillEnhancement=20;
+		
 		for(int i=0;i<nextState.pills.size();i++) {
 			Pill pill=nextState.pills.get(i);
 			if(pill.x==neoX &&pill.y==neoY) {
 				// decreasing the damage of all alive hostages by 20
 				for(Hostage hostage:nextState.hostages) {
 					if(!hostage.isAgent()) {
-						hostage.damage=Math.max(0, hostage.damage-20);
+						hostage.damage=Math.max(0, hostage.damage-pillEnhancement);
 					}
 				}
 
 				// decreasing the damage of all alive carried hostages by 20
-				for(Hostage hostage:nextState.carriedHostages) {
-					if(!hostage.isAgent()) {
-						hostage.damage=Math.max(0, hostage.damage-20);
-					}
-				}
+//				for(Hostage hostage:nextState.carriedHostages) {
+//					if(!hostage.isAgent()) {
+//						hostage.damage=Math.max(0, hostage.damage-pillEnhancement);
+//					}
+//				}
 
 				// decreasing the damage of neo
-				nextState.neo.damage=Math.max(0,nextState.neo.damage-20);
+				nextState.neo.damage=Math.max(0,nextState.neo.damage-pillEnhancement);
 
 
 				nextState.pills.remove(i);
 				nextState.matrix[neoX][neoY]=null;
 
-				//				nextState.oneTimeStep(); When neo takes pill, we don't increase damage of all hostages. 
+				//nextState.oneTimeStep();// When neo takes pill, we don't increase damage of all hostages. 
 				nextStates.add(new StateOperatorPair(nextState, "takePill"));
 
 			}
@@ -552,7 +568,7 @@ hostagesTransformed;killedAgents
 				if(hostage.x==neoX&&hostage.y==neoY&&!hostage.isAgent()) {// found at the current cell an alive hostage
 					nextState.carriedHostages.add(hostage);
 					nextState.hostages.remove(i);
-
+					
 					nextState.matrix[neoX][neoY]=null;// nullify the current cell since now I carried that hostage
 					nextState.oneTimeStep();
 					nextStates.add(new StateOperatorPair(nextState, "carry"));

@@ -12,6 +12,9 @@ import java.lang.*;
 import java.io.*;
 
 public class Utils {
+	
+//	"5,5;4;1,1;4,1;2,4,0,4,3,2,3,0,4,2,0,1,1,3,2,1;4,0,4,4,1,0;2,0,0,2,0,2,2,0,2;0,0,62,4,3,45,3,3,39,2,3,40";
+	
 	/*
 M,N; C; NeoX,NeoY; TelephoneX,TelehoneY;
 AgentX1,AgentY1, ...,AgentXk,AgentYk;
