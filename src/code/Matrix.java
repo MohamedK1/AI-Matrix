@@ -55,7 +55,6 @@ public class Matrix extends GenericSearch{
 			for(StateOperatorPair stateOperator:nextStates) {
 			
 				if(visited.contains(stateOperator.state.encode(true))) {
-					//System.out.println("already visited nnn");
 					continue;// avoid visiting already visted states
 				}
 				SearchTreeNode child=new SearchTreeNode(stateOperator.state, treeNode, stateOperator.operator, treeNode.getDepth()+1, 0);
@@ -131,12 +130,9 @@ public class Matrix extends GenericSearch{
 		return genericSortedSearch(initialState, Matrix::GR2Cost);
 	}
 	
-	public SearchTreeNode BFS2(State initialState) {
-		return genericSortedSearch(initialState, Matrix::BFSCost);
-	}
 	
 	
-	public SearchTreeNode genericSortedSearch(State initialState,Function<GenericState,Integer> function) {
+	public SearchTreeNode genericSortedSearch(State initialState,Function<GenericState,Long> function) {
 //		System.out.println(function.apply(initialState));
 		SearchTreeNode root=new SearchTreeNode(initialState, null, "", 0, function.apply(initialState));
 		//TODO change it with the encoding of the state as string
@@ -145,6 +141,7 @@ public class Matrix extends GenericSearch{
 		pq.add(root);
 		while(!pq.isEmpty()) {
 			SearchTreeNode treeNode=pq.poll();
+//			System.out.println("cost "+treeNode.getPathCost());
 //			System.out.println("depth  " +treeNode.getDepth());
 			State curState=treeNode.getState();
 			
@@ -205,6 +202,11 @@ public class Matrix extends GenericSearch{
 		while(!visualizedStack.isEmpty()) {
 			System.out.println(visualizedStack.pop());
 			if(!sequenceCloned.isEmpty())System.out.println(sequenceCloned.pop());
+
+//			pw.println(visualizedStack.pop());
+//			if(!sequenceCloned.isEmpty())pw.println(sequenceCloned.pop());
+
+		
 		}
 
 		return ans;
@@ -229,13 +231,6 @@ public class Matrix extends GenericSearch{
 		return s.getHostages().size()==0&&s.getCarriedHostages().size()==0&&s.getNeo().x==s.getTelephoneBooth().x&&s.getNeo().y==s.getTelephoneBooth().y&&s.getNeo().damage<100;
 	}
 
-//	@Override
-//	public Pair pathCostFunction(GenericState stateSequence) {
-//		State s=(State)stateSequence;
-//
-//		// TODO Auto-generated method stub
-//		return new Pair(s.getHostagesTransformed(),s.getKilledAgents());
-//	}
 
 	@Override
 	public Integer pathCostFunction(GenericState stateSequence) {
@@ -245,45 +240,44 @@ public class Matrix extends GenericSearch{
 		return s.getHostagesTransformed()*1000+s.getKilledAgents();
 	}
 	
-	public static int BFSCost(GenericState stateSequence) {
-		
-		// TODO Auto-generated method stub
-		return 1;
-
-	}
 	
-	public static int UCSCost(GenericState stateSequence) {
+	public static long UCSCost(GenericState stateSequence) {
 		State s=(State)stateSequence;
 
 		// TODO Auto-generated method stub
-		return s.getHostagesTransformed()*1000+s.getKilledAgents();
+//		return s.getHostagesTransformed()*1000+s.getKilledAgents();
+		return s.getHostagesTransformed()*(long)1e12+s.getKilledAgents()*(long)1e9+expandedNodes;
 
 	}
 
 	
-	public static int AS1Cost(GenericState stateSequence) {
+	public static long AS1Cost(GenericState stateSequence) {
 		State s=(State)stateSequence;
 
 		// TODO Auto-generated method stub
-		return s.h1()+s.getHostagesTransformed()*1000+s.getKilledAgents();
+//		return s.h1()+s.getHostagesTransformed()*1000+s.getKilledAgents();
+		return s.h1()+s.getHostagesTransformed()*(long)1e12+s.getKilledAgents()*(long)1e9+expandedNodes;
 
 	}
-	public static int AS2Cost(GenericState stateSequence) {
+	public static long AS2Cost(GenericState stateSequence) {
 		State s=(State)stateSequence;
 
 		// TODO Auto-generated method stub
-		return s.h2()+s.getHostagesTransformed()*1000+s.getKilledAgents();
+//		System.out.println("h2 value "+s.h2());
+//		System.out.println(s.h2()*5000+s.getHostagesTransformed()*1000+s.getKilledAgents());
+//		return s.h2()*1000+s.getHostagesTransformed()*1000+s.getKilledAgents();
+		return s.h2()+s.getHostagesTransformed()*(long)1e12+s.getKilledAgents()*(long)1e9+expandedNodes;
 
 	}
 	
-	public static int GR1Cost(GenericState stateSequence) {
+	public static long GR1Cost(GenericState stateSequence) {
 		State s=(State)stateSequence;
 
 		// TODO Auto-generated method stub
 		return s.h1();
 
 	}
-	public static int GR2Cost(GenericState stateSequence) {
+	public static long GR2Cost(GenericState stateSequence) {
 		State s=(State)stateSequence;
 
 		// TODO Auto-generated method stub
@@ -422,9 +416,9 @@ public class Matrix extends GenericSearch{
 			throw new Exception("Enter a valid search strategy.");
 		}
 		if(goal==null) {
+//			System.out.println("No Solution");
 			return "No Solution";
 		}
-		
 		String plan=constructPath(goal,visualize);
 		State goalState=goal.getState();
 //		System.out.println("goal agents"+goalState.getAgents().size());
@@ -432,20 +426,34 @@ public class Matrix extends GenericSearch{
 		int killed=goalState.getKilledAgents();
 		
 		//TODO handle the visualization
-		
+//		System.out.println((plan+deaths+";"+killed+";"+expandedNodes));
 		return plan+deaths+";"+killed+";"+expandedNodes;
 	}
 	
 	
 	static PrintWriter pw;
 	public static void main(String[] args) throws Exception {
-		pw=new PrintWriter(new File("DFS trace.txt"));
+		pw=new PrintWriter(new File("grid1 running example.txt"));
+		
+//		String grid = "5,5;2;3,4;1,2;0,3,1,4;2,3;4,4,0,2,0,2,4,4;2,2,91,2,4,62";
+		String grid = "5,5;1;1,4;1,0;0,4;0,0,2,2;3,4,4,2,4,2,3,4;0,2,32,0,1,38";
+//		String grid2 = "5,5;2;3,2;0,1;4,1;0,3;1,2,4,2,4,2,1,2,0,4,3,0,3,0,0,4;1,1,77,3,4,34";
+//		String grid = "5,5;1;0,4;4,4;0,3,1,4,2,1,3,0,4,1;4,0;2,4,3,4,3,4,2,4;0,2,98,1,2,98,2,2,98,3,2,98,4,2,98,2,0,1";
+//		String grid4 = "5,5;1;0,4;4,4;0,3,1,4,2,1,3,0,4,1;4,0;2,4,3,4,3,4,2,4;0,2,98,1,2,98,2,2,98,3,2,98,4,2,98,2,0,98,1,0,98";
+//		String grid5 = "5,5;2;0,4;3,4;3,1,1,1;2,3;3,0,0,1,0,1,3,0;4,2,54,4,0,85,1,0,43";
+//		String grid6 = "5,5;2;3,0;4,3;2,1,2,2,3,1,0,0,1,1,4,2,3,3,1,3,0,1;2,4,3,2,3,4,0,4;4,4,4,0,4,0,4,4;1,4,57,2,0,46";
+//		String grid7 = "5,5;3;1,3;4,0;0,1,3,2,4,3,2,4,0,4;3,4,3,0,4,2;1,4,1,2,1,2,1,4,0,3,1,0,1,0,0,3;4,4,45,3,3,12,0,2,88";
+//		String grid8 = "5,5;2;4,3;2,1;2,0,0,4,0,3,0,1;3,1,3,2;4,4,3,3,3,3,4,4;4,0,17,1,2,54,0,0,46,4,1,22";
+//		String grid9 = "5,5;2;0,4;1,4;0,1,1,1,2,1,3,1,3,3,3,4;1,0,2,4;0,3,4,3,4,3,0,3;0,0,30,3,0,80,4,4,80";
+//		String grid10 = "5,5;4;1,1;4,1;2,4,0,4,3,2,3,0,4,2,0,1,1,3,2,1;4,0,4,4,1,0;2,0,0,2,0,2,2,0;0,0,62,4,3,45,3,3,39,2,3,40";
+		
 //		String grid="2,4;2;0,0;1,1;0,1;0,2;0,3,1,2,1,2,0,3;1,0,96";
 //		String grid="4,2;2;0,0;1,1;;;;";
 //		String grid = "8,8;1;2,4;5,3;0,4,1,4,3,0,7,7,5,6;0,1,1,3;4,4,3,1,3,1,4,4,0,7,7,0,7,0,0,7;0,2,28,4,0,30,5,5,5";
 //		String grid = "5,5;2;4,3;2,1;2,0,0,4,0,3,0,1;3,1,3,2;4,4,3,3,3,3,4,4;4,0,17,1,2,54,0,0,46,4,1,22";
 //		String grid = "6,6;2;2,4;2,2;0,4,1,4,3,0,4,2;0,1,1,3;4,4,3,1,3,1,4,4;0,0,94,1,2,38,4,1,76,4,0,80";
-		String grid = "5,5;3;1,3;4,0;0,1,3,2,4,3,2,4,0,4;3,4,3,0,4,2;1,4,1,2,1,2,1,4,0,3,1,0,1,0,0,3;4,4,45,3,3,12,0,2,88";
+//		String grid = "5,5;2;3,4;1,2;0,3,1,4;2,3;4,4,0,2,0,2,4,4;2,2,91,2,4,62";
+//		String grid = "5,5;4;1,1;4,1;2,4,0,4,3,2,3,0,4,2,0,1,1,3,2,1;4,0,4,4,1,0;2,0,0,2,0,2,2,0;0,0,62,4,3,45,3,3,39,2,3,40";
 
 //		String grid = "7,7;3;0,0;0,6;0,3,0,4,2,3,4,5,6,6,5,4;0,2,4,3;2,0,0,5,0,5,2,0;1,0,83,2,5,38,6,4,66,2,6,20";
 //		String grid = "5,5;2;4,3;2,1;2,0,0,4,0,3,0,1;3,1,3,2;4,4,3,3,3,3,4,4;4,0,17,1,2,54,0,0,46,4,1,22";
@@ -455,12 +463,23 @@ public class Matrix extends GenericSearch{
 //		State state=Utils.parse(grid);
 //		System.out.println(state.visualize());
 //		System.out.println("****************************");
+		
+		String[] algo= {"BF","DF","ID","UC","AS1","AS2","GR1","GR2"};
+		String[] name= {"BFS","DFS","IDS","UCS","AS1","AS2","GR1","GR2"};
+		
+
 		long time=System.currentTimeMillis();
-		String ans=solve(grid,"UC",true);
+		for(int i=0;i<algo.length;i++) {
+			
+			pw.println("\n\n\n\n\n"+name[i]+"\n\n\n\n\n\n\n");
+			String ans=solve(grid,algo[i],true);
+			pw.println(ans);
+			pw.println("\n\n\n\n\n\n");
+			pw.println("************************************************");
+		}
+		pw.flush();
 		
-		
-		System.out.println(System.currentTimeMillis()-time);
-		System.out.println(ans);
+//		System.out.println(System.currentTimeMillis()-time);
 //		System.out.println(solve(grid, "AS2", false));
 //		String grid=genGrid();
 //		grid="14,15;2;8,13;0,10;13,8,0,6,3,7,9,1,11,6,0,11,13,7,6,9,4,0,4,4,1,8,10,11,6,7,2,1,3,0,5,5,0,8,7,13,7,1,7,0,6,12,7,9,0,13,10,10,5,11,1,6,3,2,11,10,14,5,13,4,6,13,12,2,12,10,5,9,1,7,14,4,11,8,0,2,8,10,2,7,1,13,11,7,5,0,6,1,1,2,11,5,0,4,11,13,13,5,12,13,11,9,14,12,2,13,2,2,1,3,1,11,4,5,12,8,5,8,4,11,0,12,10,1,6,11,8,4,11,3,9,8,10,4,7,7,6,10,5,13,13,2,3,8,1,4,9,7,14,13,8,1,9,12,10,8,10,0,5,4,6,6,3,12,4,12,2,8,1,12,14,10,1,0,3,6,6,5,2,12,12,4,8,0,13,10,12,6,11,2,6,3,13,9,2,0,2,11,13,6,1,1,14,7,2,6,1,10,0,9,4,13,7,10,1,9,12,5,8,5,14,6,7,12,5,1,5,2,9,3,11,12,4,10,10,6,2,10,10,13,9,9,9,4,7,6,7,4,0,3,6,2,3,1,9,10,4,2,10,12,14,2,8,9,14,3,4,6,14,11,0,7,3,4,3,13,7,5,10,2,6,4,12,11,5,10,14,1,1,5,8,7,14,0,7,8,13,12,2,5,5,7,5,6,12,12,7,3,14,9,3,3,8,3,8,6,13,0,7,11,5,12,12,3,9,11,12,7,12,1,11,0,2,9,13,3,4,3,10,5,12,9,0,5,6,8,4,9,9,13,9,2,11,11,4,7,12,0,9,5,11,1,9,0,4,8,2,3,0,1,8,11,11,4,13,1,9,6,0,0,8,2,8,8,13,13,10,7,3,10,10,9,3,9,13,11,7,2,10,3;14,8,4,1,5,3,3,5;2,4,84,6,0,56,3,11,55,8,12,16";

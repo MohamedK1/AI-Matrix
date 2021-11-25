@@ -520,11 +520,11 @@ hostagesTransformed;killedAgents
 				}
 
 				// decreasing the damage of all alive carried hostages by 20
-//				for(Hostage hostage:nextState.carriedHostages) {
-//					if(!hostage.isAgent()) {
-//						hostage.damage=Math.max(0, hostage.damage-pillEnhancement);
-//					}
-//				}
+				for(Hostage hostage:nextState.carriedHostages) {
+					if(!hostage.isAgent()) {
+						hostage.damage=Math.max(0, hostage.damage-pillEnhancement);
+					}
+				}
 
 				// decreasing the damage of neo
 				nextState.neo.damage=Math.max(0,nextState.neo.damage-pillEnhancement);
@@ -667,6 +667,7 @@ hostagesTransformed;killedAgents
 		int cntPills=pills.size();
 		int cntDeadHostage=0;
 		for(Hostage hostage:hostages) {
+			if(hostage.isAgent())continue;
 			int damage=hostage.damage-20*cntPills;
 			int neoIdx=getIndex(neo.x, neo.y, m);
 			int hostageIdx=getIndex(hostage.x,hostage.y,m);
@@ -676,7 +677,12 @@ hostagesTransformed;killedAgents
 
 			if(damage+totalDistance*2>=100)
 				cntDeadHostage++;
+			
 		}
+
+
+
+		
 		return cntDeadHostage;
 
 	}

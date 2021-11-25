@@ -1,9 +1,8 @@
 package tests;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -595,10 +594,10 @@ public class TestMatrixPublic {
 			int x01;
 			int m1;
 			int m2;
-			int NeosDamage;
+			int m3;
 			ArrayList<String> xyz;
 			ArrayList<String> xyzw;
-			ArrayList<String> pills;
+			ArrayList<String> m4;
 			HashMap<String,String> m5;
 			HashMap<String,Integer> m7;
 			HashMap<String,Integer> m6;
@@ -617,10 +616,10 @@ public class TestMatrixPublic {
 				this.x01 = x01;
 				this.m1 = m1;
 				this.m2 = 0;
-				this.NeosDamage = 0;
+				this.m3 = 0;
 				this.xyz = xyz;
 				this.xyzw = new ArrayList<String>();
-				this.pills = m4;
+				this.m4 = m4;
 				this.m5 = m5;
 				this.m7 = m7;
 				this.m6 = new HashMap<String,Integer>();
@@ -684,7 +683,7 @@ public class TestMatrixPublic {
 
 			}
 			
-			public boolean applyRight() {
+			public boolean f4() {
 				if(!f42(x00, x01+1)) return false;
 				if(x01 + 1 < this.n)
 					x01++;
@@ -705,8 +704,8 @@ public class TestMatrixPublic {
 							this.m23++;
 						}
 					}
-					NeosDamage +=20;
-					if(NeosDamage == 100)
+					m3 +=20;
+					if(m3 == 100)
 						ll = true;
 					
 					ll2();
@@ -755,18 +754,23 @@ public class TestMatrixPublic {
 				
 			}
 			
-			public boolean handleTakePill() {
-				if(this.pills.contains(f1(x00,x01))) {
-					NeosDamage = (NeosDamage -20 <0) ? 0 : NeosDamage -20;
+			public boolean f32() {
+				if(this.m4.contains(f1(x00,x01))) {
+					m3 = (m3 -20 <0) ? 0 : m3 -20;
 					for(String abc: m7.keySet()) {
 						int beatles = m7.get(abc)-20 <0? 0 : m7.get(abc)-20;
 						m7.put(abc,beatles);
 					}
-					this.pills.remove(f1(x00,x01));
+					for(String abc: m6.keySet()) {
+						if(m6.get(abc)<100) {
+							int beatles = m6.get(abc)-20 <0? 0 : m6.get(abc)-20;
+							m6.put(abc,beatles);
+						}
+					}
+					this.m4.remove(f1(x00,x01));
 					return true;
 				}
 				return false;
-				
 			}
 			
 			public void ll2() {
@@ -801,7 +805,7 @@ public class TestMatrixPublic {
 			}
 			
 			public boolean grace() {	
-				return !this.ll && this.NeosDamage<100 && this.m7.size() == 0 
+				return !this.ll && this.m3<100 && this.m7.size() == 0 
 						&& this.xyzw.size() == 0 && this.x00 == this.x10
 						&& this.x01 == this.x11;
 			}
@@ -809,6 +813,7 @@ public class TestMatrixPublic {
 
 			
 			public static boolean applyPlan(String grid, String solution) {
+//				System.out.println(solution);
 				String[] solutionArray  = solution.split(";");
 				String plan = solutionArray[0];
 				int blue = Integer.parseInt(solutionArray[1]);
@@ -874,7 +879,7 @@ public class TestMatrixPublic {
 						linkin = s.f3();
 						break;
 					case "right":
-						linkin = s.applyRight();
+						linkin = s.f4();
 						break;
 					case "left":
 						linkin = s.applyLeft();
@@ -889,7 +894,7 @@ public class TestMatrixPublic {
 						linkin = s.f320();
 						break;
 					case "takePill":
-						linkin = s.handleTakePill();
+						linkin = s.f32();
 						break;
 					case "kill":
 						linkin = s.f100();
@@ -897,16 +902,13 @@ public class TestMatrixPublic {
 					default: linkin = false; break;
 								
 					}
+
 					if(!linkin)
 						return false;		
 					
 						
 						
 				}
-				
-			
 				return s.grace() && s.m23 == doors && s.m10.size() == blue;
 			}
 }
-// failures: c2,c7,g2,g7,gz10,z10
-// failed :  c3,c7, f0,g7,gz10,z10
