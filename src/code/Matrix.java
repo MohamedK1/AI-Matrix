@@ -37,16 +37,12 @@ public class Matrix extends GenericSearch{
 		SearchTreeNode root=new SearchTreeNode(initialState, null, "", 0, 0);
 		Queue<SearchTreeNode> queue=new LinkedList<>();
 		queue.add(root);
-		//TODO change it with the encoding of the state as string
 		HashSet<String> visited= new HashSet<String>();
-		visited.add(initialState.encode(true));
+		visited.add(initialState.encode());
 		while(!queue.isEmpty()) {
 			SearchTreeNode treeNode=queue.poll();
 			State curState=treeNode.getState();
-//			if(visited.contains(curState.encode()))
-//				continue;
-			visited.add(curState.encode(true));
-//			System.out.println(visited.size());
+			visited.add(curState.encode());
 			if(isGoal(curState))
 				return treeNode;
 
@@ -54,14 +50,13 @@ public class Matrix extends GenericSearch{
 			expandedNodes++;
 			for(StateOperatorPair stateOperator:nextStates) {
 			
-				if(visited.contains(stateOperator.state.encode(true))) {
+				if(visited.contains(stateOperator.state.encode())) {
 					continue;// avoid visiting already visted states
 				}
 				SearchTreeNode child=new SearchTreeNode(stateOperator.state, treeNode, stateOperator.operator, treeNode.getDepth()+1, 0);
 				queue.add(child);
-				visited.add(stateOperator.state.encode(true));
+				visited.add(stateOperator.state.encode());
 			}
-//			System.out.println(expandedNodes);
 	
 		}
 		return null;// means that there is no goal
@@ -69,24 +64,20 @@ public class Matrix extends GenericSearch{
 
 	public SearchTreeNode DFS(State initialState) {
 		SearchTreeNode root=new SearchTreeNode(initialState, null, "", 0, 0);
-		//TODO change it with the encoding of the state as string
 		HashSet<String> visited= new HashSet();
 		return DFS(root,visited,false,Integer.MAX_VALUE);
 
 	}
-	static int numberOfStates=0;
 	public SearchTreeNode DFS(SearchTreeNode node,HashSet<String> visited,boolean limit,int limitedDepth) {
 		State curState=node.getState();
 	
-		numberOfStates++;
-		State s=node.getState();
 		if(limit&&node.getDepth()>limitedDepth)return null;
 		if(isGoal(curState))return node;
-		visited.add(curState.encode(true));
+		visited.add(curState.encode());
 		ArrayList<StateOperatorPair> nextStates = curState.expand(node.getOperator());
 		expandedNodes++;
 		for(StateOperatorPair stateOperator:nextStates) {
-			if(visited.contains(stateOperator.state.encode(true)))continue;// avoid visiting already visted states
+			if(visited.contains(stateOperator.state.encode()))continue;// avoid visiting already visted states
 
 			SearchTreeNode child=new SearchTreeNode(stateOperator.state, node, stateOperator.operator, node.getDepth()+1, 0);
 			SearchTreeNode ans=DFS(child,visited,limit,limitedDepth);
@@ -102,7 +93,6 @@ public class Matrix extends GenericSearch{
 
 		for(int i=0;i<Integer.MAX_VALUE;i++) {
 			SearchTreeNode root=new SearchTreeNode(initialState, null, "", 0, 0);
-			//TODO change it with the encoding of the state as string
 			HashSet<String> visited= new HashSet();
 			SearchTreeNode node= DFS(root,visited,true,i);
 			if(node!=null)return node;
@@ -133,21 +123,17 @@ public class Matrix extends GenericSearch{
 	
 	
 	public SearchTreeNode genericSortedSearch(State initialState,Function<GenericState,Long> function) {
-//		System.out.println(function.apply(initialState));
 		SearchTreeNode root=new SearchTreeNode(initialState, null, "", 0, function.apply(initialState));
-		//TODO change it with the encoding of the state as string
 		HashSet<String> visited= new HashSet();
 		PriorityQueue<SearchTreeNode> pq=new PriorityQueue<>();
 		pq.add(root);
 		while(!pq.isEmpty()) {
 			SearchTreeNode treeNode=pq.poll();
-//			System.out.println("cost "+treeNode.getPathCost());
-//			System.out.println("depth  " +treeNode.getDepth());
 			State curState=treeNode.getState();
 			
-			if(visited.contains(curState.encode(true)))continue;
+			if(visited.contains(curState.encode()))continue;
 			
-			visited.add(curState.encode(true));
+			visited.add(curState.encode());
 			if(isGoal(curState))
 				return treeNode;
 			
@@ -155,7 +141,7 @@ public class Matrix extends GenericSearch{
 			expandedNodes++;
 
 			for(StateOperatorPair stateOperator:nextStates) {
-				if(visited.contains(stateOperator.state.encode(true))) {
+				if(visited.contains(stateOperator.state.encode())) {
 					continue;// avoid visiting already visted states
 				}
 				SearchTreeNode child=new SearchTreeNode(stateOperator.state,
@@ -170,7 +156,6 @@ public class Matrix extends GenericSearch{
 
 	
 	public static String constructPath(SearchTreeNode node,boolean visualize) {
-//		System.out.println("Answer at depth "+node.getDepth());
 		Stack<String> sequence=new Stack();
 		Stack<String> sequenceCloned=new Stack();
 		Stack<String> visualizedStack=new Stack();
@@ -202,10 +187,6 @@ public class Matrix extends GenericSearch{
 		while(!visualizedStack.isEmpty()) {
 			System.out.println(visualizedStack.pop());
 			if(!sequenceCloned.isEmpty())System.out.println(sequenceCloned.pop());
-
-//			pw.println(visualizedStack.pop());
-//			if(!sequenceCloned.isEmpty())pw.println(sequenceCloned.pop());
-
 		
 		}
 
@@ -222,7 +203,6 @@ public class Matrix extends GenericSearch{
 			output.add(pair.state);
 		return output;
 	}
-	//TODO check if you no longer have any hostages either transformed or not however, neo is dead so is this a gaol state ?
 	@Override
 	public boolean isGoal(GenericState state) {
 		State s=(State)state;
@@ -233,11 +213,12 @@ public class Matrix extends GenericSearch{
 
 
 	@Override
-	public Integer pathCostFunction(GenericState stateSequence) {
+	public Long pathCostFunction(GenericState stateSequence) {
 		State s=(State)stateSequence;
 
 		// TODO Auto-generated method stub
-		return s.getHostagesTransformed()*1000+s.getKilledAgents();
+		return s.getHostagesTransformed()*(long)1e12+s.getKilledAgents()*(long)1e9+expandedNodes;
+
 	}
 	
 	
@@ -245,7 +226,6 @@ public class Matrix extends GenericSearch{
 		State s=(State)stateSequence;
 
 		// TODO Auto-generated method stub
-//		return s.getHostagesTransformed()*1000+s.getKilledAgents();
 		return s.getHostagesTransformed()*(long)1e12+s.getKilledAgents()*(long)1e9+expandedNodes;
 
 	}
@@ -255,7 +235,6 @@ public class Matrix extends GenericSearch{
 		State s=(State)stateSequence;
 
 		// TODO Auto-generated method stub
-//		return s.h1()+s.getHostagesTransformed()*1000+s.getKilledAgents();
 		return s.h1()+s.getHostagesTransformed()*(long)1e12+s.getKilledAgents()*(long)1e9+expandedNodes;
 
 	}
@@ -263,9 +242,6 @@ public class Matrix extends GenericSearch{
 		State s=(State)stateSequence;
 
 		// TODO Auto-generated method stub
-//		System.out.println("h2 value "+s.h2());
-//		System.out.println(s.h2()*5000+s.getHostagesTransformed()*1000+s.getKilledAgents());
-//		return s.h2()*1000+s.getHostagesTransformed()*1000+s.getKilledAgents();
 		return s.h2()+s.getHostagesTransformed()*(long)1e12+s.getKilledAgents()*(long)1e9+expandedNodes;
 
 	}
@@ -416,17 +392,14 @@ public class Matrix extends GenericSearch{
 			throw new Exception("Enter a valid search strategy.");
 		}
 		if(goal==null) {
-//			System.out.println("No Solution");
 			return "No Solution";
 		}
 		String plan=constructPath(goal,visualize);
 		State goalState=goal.getState();
-//		System.out.println("goal agents"+goalState.getAgents().size());
 		int deaths=goalState.getHostagesTransformed();
 		int killed=goalState.getKilledAgents();
 		
 		//TODO handle the visualization
-//		System.out.println((plan+deaths+";"+killed+";"+expandedNodes));
 		return plan+deaths+";"+killed+";"+expandedNodes;
 	}
 	
@@ -436,7 +409,7 @@ public class Matrix extends GenericSearch{
 		pw=new PrintWriter(new File("grid1 running example.txt"));
 		
 //		String grid = "5,5;2;3,4;1,2;0,3,1,4;2,3;4,4,0,2,0,2,4,4;2,2,91,2,4,62";
-		String grid = "5,5;1;1,4;1,0;0,4;0,0,2,2;3,4,4,2,4,2,3,4;0,2,32,0,1,38";
+//		String grid1 = "5,5;1;1,4;1,0;0,4;0,0,2,2;3,4,4,2,4,2,3,4;0,2,32,0,1,38";
 //		String grid2 = "5,5;2;3,2;0,1;4,1;0,3;1,2,4,2,4,2,1,2,0,4,3,0,3,0,0,4;1,1,77,3,4,34";
 //		String grid = "5,5;1;0,4;4,4;0,3,1,4,2,1,3,0,4,1;4,0;2,4,3,4,3,4,2,4;0,2,98,1,2,98,2,2,98,3,2,98,4,2,98,2,0,1";
 //		String grid4 = "5,5;1;0,4;4,4;0,3,1,4,2,1,3,0,4,1;4,0;2,4,3,4,3,4,2,4;0,2,98,1,2,98,2,2,98,3,2,98,4,2,98,2,0,98,1,0,98";
@@ -463,21 +436,28 @@ public class Matrix extends GenericSearch{
 //		State state=Utils.parse(grid);
 //		System.out.println(state.visualize());
 //		System.out.println("****************************");
-		
-		String[] algo= {"BF","DF","ID","UC","AS1","AS2","GR1","GR2"};
-		String[] name= {"BFS","DFS","IDS","UCS","AS1","AS2","GR1","GR2"};
+//		for(int i=0;i<1000;i++)
+	
+//		String[] algo= {"BF","DF","ID","UC","AS1","AS2","GR1","GR2"};
+//		String[] name= {"BFS","DFS","IDS","UCS","AS1","AS2","GR1","GR2"};
 		
 
-		long time=System.currentTimeMillis();
-		for(int i=0;i<algo.length;i++) {
-			
-			pw.println("\n\n\n\n\n"+name[i]+"\n\n\n\n\n\n\n");
-			String ans=solve(grid,algo[i],true);
-			pw.println(ans);
-			pw.println("\n\n\n\n\n\n");
-			pw.println("************************************************");
-		}
-		pw.flush();
+//		for(int i=0;i<algo.length;i++) {
+//			
+//			String ans=solve(grid1,algo[i],false);
+//			System.out.println(algo[i]+" "+expandedNodes);
+//		}
+//		
+//		long time=System.currentTimeMillis();
+//		for(int i=0;i<algo.length;i++) {
+//			
+//			pw.println("\n\n\n\n\n"+name[i]+"\n\n\n\n\n\n\n");
+//			String ans=solve(grid,algo[i],true);
+//			pw.println(ans);
+//			pw.println("\n\n\n\n\n\n");
+//			pw.println("************************************************");
+//		}
+//		pw.flush();
 		
 //		System.out.println(System.currentTimeMillis()-time);
 //		System.out.println(solve(grid, "AS2", false));

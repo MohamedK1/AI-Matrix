@@ -87,11 +87,12 @@ CarriedHostageX1,CarriedHostageY1,CarriedHostageDamage1, ...,CarriedHostageXw,Ca
 TelephoneBoothHostageX1,TelephoneBoothHostageY1,TelephoneBoothHostageDamage1, ...,TelephoneBoothHostageXw,TelephoneBoothHostageYw,TelephoneBoothHostageDamag;
 hostagesTransformed;killedAgents
 	 */
+
 	public String encode() {
 		return encode(false);
 	}
+
 	public String encode(boolean skipDamage) {
-		skipDamage=false;
 		int m = matrix[0].length;
 		int n = matrix.length;
 		String res = m+","+n+";"+c+";"+neo.x+","+neo.y+","+neo.damage+";"+telephoneBooth.x+","+telephoneBooth.y+";";
@@ -170,7 +171,8 @@ hostagesTransformed;killedAgents
 		return res;	
 	}
 	
-	public static State decode(String s) {
+	
+public static State decode(String s) {
 
 		StringTokenizer st=new StringTokenizer(s,";");
 		String []arr = s.split(";");
@@ -317,11 +319,11 @@ hostagesTransformed;killedAgents
 		
 		Cell[][] matrix= Utils.buildMatrix(m,n, tele, agentList, pillList, padList, hostageList);
 		
-//		System.out.println(visualize(matrix,neo));
 		State state= new State(neo, c, hostageList, carriedHostageList, agentList, pillList,padList, tele, matrix,transformedHostages,agentsKilled,telephoneBoothHostageList);
 		return state;
 
 	}
+
 
 
 
@@ -370,9 +372,11 @@ hostagesTransformed;killedAgents
 	}
 
 
+
 	public static class StateOperatorPair{
 		public State state;public String operator;
 	
+
 		public StateOperatorPair(State state, String operator) {
 			super();
 			this.state = state;
@@ -380,6 +384,7 @@ hostagesTransformed;killedAgents
 		}
 
 	}
+
 
 
 
@@ -393,10 +398,6 @@ hostagesTransformed;killedAgents
 				nextState.oneTimeStep();
 				nextStates.add(new StateOperatorPair(nextState, operator));
 			}
-		}else {
-			//			nextState.oneTimeStep();
-			//			nextStates.add(new StateOperatorPair(nextState, operator));
-
 		}
 	}
 
@@ -435,17 +436,12 @@ hostagesTransformed;killedAgents
 				//checking if we have a hostage that has transformed into agent so that we can kill it.
 				for(int i=0;i<nextState.hostages.size();i++) {
 					if(nextState.hostages.get(i).x==x&&nextState.hostages.get(i).y==y&&nextState.hostages.get(i).isAgent()) {
-						//State nextState=this.clone();
-
+	
 						nextState.hostages.remove(i);
 						nextState.matrix[x][y]=null;		
 
 						nextState.killedAgents++;
 						killed = true;
-						//					nextState.neo.damage=Math.min(100, nextState.neo.damage+20);
-						//
-						//					nextState.oneTimeStep();
-						//					nextStates.add(new StateOperatorPair(nextState, "kill"));
 						break;
 					}
 				}
@@ -460,10 +456,6 @@ hostagesTransformed;killedAgents
 
 						nextState.killedAgents++;
 						killed = true;
-						//					nextState.neo.damage=Math.min(100, nextState.neo.damage+20);
-						//
-						//					nextState.oneTimeStep();
-						//					nextStates.add(new StateOperatorPair(nextState, "kill"));
 						break;
 					}
 				}
@@ -478,6 +470,7 @@ hostagesTransformed;killedAgents
 			nextStates.add(new StateOperatorPair(nextState, "kill"));
 		}
 	}
+
 	private boolean isValid(int i, int j ) {
 		return i>=0&&i<matrix.length&&j>=0&&j<matrix[0].length;
 	}
